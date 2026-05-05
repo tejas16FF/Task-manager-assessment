@@ -11,17 +11,20 @@ function TaskForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // ✅ validation ONLY on submit
     if (!title || title.trim().length < 3) {
       setError("Title must be at least 3 characters");
       return;
     }
 
+    // ✅ add task
     addTask({
       id: Date.now(),
       title,
       priority,
     });
 
+    // ✅ reset form
     setTitle("");
     setPriority("Low");
     setError("");
@@ -33,11 +36,8 @@ function TaskForm() {
         type="text"
         placeholder="Enter task"
         value={title}
-        onChange={(e) => {
-            setTitle(e.target.value);
-            setError("");
-            }}
-        />
+        onChange={(e) => setTitle(e.target.value)}
+      />
 
       <select
         value={priority}
@@ -48,11 +48,15 @@ function TaskForm() {
         <option>High</option>
       </select>
 
-      <button type="submit" disabled={title.trim().length < 3}>
-        Add Task
-      </button>
+      {/* ✅ always clickable */}
+      <button type="submit">Add Task</button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {/* ✅ error shows ONLY after clicking */}
+      {error && (
+        <p style={{ color: "red", marginTop: "5px" }}>
+          {error}
+        </p>
+      )}
     </form>
   );
 }
