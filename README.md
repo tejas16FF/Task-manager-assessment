@@ -19,12 +19,11 @@
 
 ## 📦 Setup Instructions
 
-```bash
-git clone <your-repo-link>
+git clone https://github.com/tejas16FF/task-manager-assessment.git
+cd task-manager-assessment
 cd task-manager
 npm install
 npm run dev
-```
 
 ## 📌 Notes
 
