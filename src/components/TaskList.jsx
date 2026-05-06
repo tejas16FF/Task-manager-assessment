@@ -2,11 +2,7 @@ import TaskCard from "./TaskCard";
 
 function TaskList({ tasks }) {
   if (tasks.length === 0) {
-    return (
-  <p style={{ textAlign: "center", marginTop: "20px" }}>
-    No tasks yet. Add one above!
-  </p>
-    );
+    return <p>No tasks yet. Add one above!</p>;
   }
 
   return (

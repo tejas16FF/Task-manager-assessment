@@ -6,39 +6,86 @@ import { useTaskStore } from "./store/useTaskStore";
 
 function App() {
   const { tasks, setTasks } = useTaskStore();
-  const [filter, setFilter] = useState("All");
-  const [loaded, setLoaded] = useState(false); // 👈 important fix
 
-  // Load tasks from localStorage
+  const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [theme, setTheme] = useState("light");
+
+  // Load tasks
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("tasks")) || [];
     setTasks(stored);
-    setLoaded(true); // 👈 mark as loaded
+    setLoaded(true);
   }, [setTasks]);
 
-  // Save tasks to localStorage
+  // Save tasks
   useEffect(() => {
     if (loaded) {
       localStorage.setItem("tasks", JSON.stringify(tasks));
     }
   }, [tasks, loaded]);
 
-  const filteredTasks =
-    filter === "All"
-      ? tasks
-      : tasks.filter((t) => t.priority === filter);
+  // Load theme
+  useEffect(() => {
+    const saved = localStorage.getItem("theme") || "light";
+    setTheme(saved);
+  }, []);
+
+  // Apply theme ✅ FIXED
+  useEffect(() => {
+    document.body.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  // Filter logic
+  const filteredTasks = tasks.filter((t) => {
+    const matchesFilter =
+      filter === "All"
+        ? true
+        : filter === "Completed"
+        ? t.completed
+        : t.priority === filter;
+
+    const matchesSearch = t.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div className="container">
-      <h1>Task Manager</h1>
+      <div className="top-bar">
+  <h1>Task Manager</h1>
 
+  <button
+    onClick={() =>
+      setTheme(theme === "light" ? "dark" : "light")
+    }
+  >
+    {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+  </button>
+</div>
       <TaskForm />
 
       <FilterBar filter={filter} setFilter={setFilter} />
 
+      <input
+        type="text"
+        placeholder="Search tasks..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ margin: "10px 0", width: "100%" }}
+      />
+
       <p>Showing {filteredTasks.length} tasks</p>
 
-      <TaskList tasks={filteredTasks} />
+      {filteredTasks.length === 0 ? (
+        <p>No tasks match your search</p>
+      ) : (
+        <TaskList tasks={filteredTasks} />
+      )}
     </div>
   );
 }

@@ -6,58 +6,61 @@ function TaskForm() {
 
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Low");
+  const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // ✅ validation ONLY on submit
     if (!title || title.trim().length < 3) {
       setError("Title must be at least 3 characters");
       return;
     }
 
-    // ✅ add task
     addTask({
       id: Date.now(),
       title,
       priority,
+      dueDate: dueDate || null,
     });
 
-    // ✅ reset form
     setTitle("");
     setPriority("Low");
+    setDueDate("");
     setError("");
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Enter task"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+    <>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Enter task"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-      <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-      >
-        <option>Low</option>
-        <option>Medium</option>
-        <option>High</option>
-      </select>
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+        >
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
 
-      {/* ✅ always clickable */}
-      <button type="submit">Add Task</button>
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
 
-      {/* ✅ error shows ONLY after clicking */}
-      {error && (
-        <p style={{ color: "red", marginTop: "5px" }}>
-          {error}
-        </p>
-      )}
-    </form>
+        <button type="submit">Add Task</button>
+      </form>
+
+      {/* ✅ ERROR BELOW FORM */}
+      {error && <p className="error">{error}</p>}
+    </>
   );
 }
 

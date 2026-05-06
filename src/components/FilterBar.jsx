@@ -1,14 +1,13 @@
 function FilterBar({ filter, setFilter }) {
-  const filters = ["All", "Low", "Medium", "High"];
+  const filters = ["All", "Low", "Medium", "High", "Completed"];
 
   return (
-    <div style={{ margin: "15px 0", textAlign: "center" }}>
+    <div className="filter-container">
       {filters.map((f) => (
         <button
           key={f}
-          className={`filter-btn ${filter === f ? "active" : ""}`}
           onClick={() => setFilter(f)}
-          style={{ margin: "5px" }}
+          className={`filter-btn ${filter === f ? "active" : ""}`}
         >
           {f}
         </button>
