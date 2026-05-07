@@ -32,7 +32,9 @@ function TaskForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form
+  onSubmit={handleSubmit}
+  className="task-form">
         <input
           type="text"
           placeholder="Enter task"
