@@ -1,115 +1,209 @@
-# Task Manager App
+# 🚀 Task Manager App
 
-A modern Task Manager application built using React, Zustand, Vite, and CSS.  
-This project was developed as part of the Webmoon Technologies assessment.
+A full-stack Task Manager application built using the MERN stack principles with React, Express, MongoDB, Zustand, and Vite.
+
+This project was developed as part of the Webmoon Technologies Assessment.
 
 ---
 
-# 🚀 Live Demo
+# 🌐 Live Demo
 
-🔗 Live URL: https://task-manager-assessment-ten.vercel.app/
+🔗 https://task-manager-assessment-ten.vercel.app/
 
 ---
 
 # 📂 GitHub Repository
 
-🔗 https://github.com/tejas16FF/task-manager-assessment
+🔗 https://github.com/tejas16FF/Task-manager-assessment
 
 ---
 
 # ✨ Features
 
-## ✅ Task 1 Features
+## ✅ Core Features
 
-- Add tasks with priority levels (Low, Medium, High)
+- Add new tasks
+- Edit existing tasks
 - Delete tasks
-- Filter tasks by priority
+- Mark tasks as completed
 - Dynamic task count display
-- Form validation (minimum 3 characters)
-- Persistent storage using localStorage
-- Responsive UI for mobile and desktop
+- Real-time UI updates
+- Responsive design for mobile & desktop
 
 ---
 
-# 🌟 Task 2 Features
+# 📌 Task Management Features
 
-## ✏️ Edit Task
+## ➕ Add Tasks
+
+- Create tasks with:
+  - Title
+  - Priority
+  - Due Date
+- Validation for minimum title length
+- Tasks stored in MongoDB Atlas
+
+---
+
+## ✏️ Edit Tasks
+
 - Edit button on each task card
-- Modal popup with dark overlay
-- Pre-filled task data in modal
-- Update task title and priority
-- Inline validation inside modal
+- Modal popup editor
+- Pre-filled task information
+- Update:
+  - Task title
+  - Priority
+  - Due date
+- Inline validation support
 - Click outside modal to close
 
 ---
 
-## ✅ Mark Task as Complete
-- Toggle tasks as completed using checkbox
-- Completed tasks show:
-  - Strikethrough title
-  - Reduced opacity
-- Added "Completed" filter tab
-- Completed state persists after refresh
+## 🗑 Delete Tasks
+
+- Delete tasks instantly
+- UI updates automatically after deletion
+- MongoDB data synced in real-time
 
 ---
 
-## 📅 Due Date & Overdue Highlight
-- Optional due date while creating task
-- Due date displayed on task cards
-- Overdue tasks highlighted with:
+## ✅ Task Completion
+
+- Toggle task completion using checkbox
+- Completed tasks display:
+  - Strikethrough text
+  - Reduced opacity
+- Completion state stored in database
+
+---
+
+# 🔍 Filtering & Search
+
+## 🎯 Priority Filtering
+
+Filter tasks by:
+- All
+- Low
+- Medium
+- High
+- Completed
+
+---
+
+## 🔎 Live Search
+
+- Real-time task search
+- Case-insensitive matching
+- Works together with filters
+- Displays empty-state message when no tasks match
+
+---
+
+# 📅 Due Date & Overdue Detection
+
+- Optional due dates
+- Due dates shown on task cards
+- Overdue tasks automatically highlighted
+- Overdue indicators include:
   - Red border
   - Overdue badge
-- Due date editable through Edit modal
 
 ---
 
-## 🔍 Live Search
-- Real-time search filtering
-- Case-insensitive search
-- Search works together with priority filters
-- Displays "No tasks match your search" when empty
+# 🌙 Dark Mode
 
----
-
-## 🌙 Dark Mode
 - Light/Dark theme toggle
-- Theme preference saved in localStorage
-- CSS variables used for dynamic theming
-- Entire app supports dark mode
+- Theme persistence using localStorage
+- Full application dark mode support
+- CSS variable-based theming
+
+---
+
+# ⚡ Backend Features
+
+- REST API using Express.js
+- MongoDB Atlas cloud database
+- Mongoose schema & models
+- Full CRUD operations:
+  - Create
+  - Read
+  - Update
+  - Delete
+- Error handling with HTTP status codes
 
 ---
 
 # 🛠 Tech Stack
 
+## Frontend
 - React
-- Zustand
 - Vite
+- Zustand
+- Axios
 - CSS
-- JavaScript
+
+---
+
+## Backend
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
 
 ---
 
 # 🧠 Concepts Used
 
-- React Hooks (`useState`, `useEffect`)
+## Frontend Concepts
+
+- React Hooks
+  - `useState`
+  - `useEffect`
 - Zustand global state management
-- Conditional rendering
 - Controlled forms
+- Conditional rendering
 - Dynamic filtering
-- localStorage persistence
-- CSS Flexbox & Grid
-- CSS Variables for theming
-- Modal implementation using pure CSS
+- Real-time search
+- Async/Await
+- Axios API calls
+- Modal implementation
 
 ---
 
-# 📦 Setup Instructions
+## Backend Concepts
+
+- REST APIs
+- Express Routing
+- Middleware
+- HTTP Methods
+  - GET
+  - POST
+  - PUT
+  - DELETE
+- MongoDB CRUD operations
+- Mongoose Models & Schemas
+- Async database operations
+- Error handling
+
+---
+
+# 📁 Folder Structure
 
 ```bash
-git clone https://github.com/tejas16FF/task-manager-assessment.git
-
-cd task-manager-assessment
-
-npm install
-
-npm run dev
+task-manager/
+│
+├── server/
+│   ├── models/
+│   ├── routes/
+│   ├── server.js
+│   └── .env
+│
+├── src/
+│   ├── components/
+│   ├── store/
+│   ├── App.jsx
+│   └── main.jsx
+│
+├── public/
+├── package.json
+└── vite.config.js
