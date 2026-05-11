@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTaskStore } from "../store/useTaskStore";
 
 function EditForm({ task, closeModal }) {
+
   const { updateTask } = useTaskStore();
 
   const [title, setTitle] = useState(task.title);
@@ -9,7 +10,8 @@ function EditForm({ task, closeModal }) {
   const [dueDate, setDueDate] = useState(task.dueDate || "");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (!title || title.trim().length < 3) {
@@ -17,7 +19,7 @@ function EditForm({ task, closeModal }) {
       return;
     }
 
-    updateTask(task.id, {
+    await updateTask(task._id, {
       title,
       priority,
       dueDate,
@@ -35,6 +37,7 @@ function EditForm({ task, closeModal }) {
         gap: "24px",
       }}
     >
+
       <h2>Edit Task</h2>
 
       <div
@@ -44,6 +47,7 @@ function EditForm({ task, closeModal }) {
           gap: "14px",
         }}
       >
+
         <input
           type="text"
           value={title}
@@ -64,6 +68,7 @@ function EditForm({ task, closeModal }) {
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
         />
+
       </div>
 
       {error && (
@@ -83,6 +88,7 @@ function EditForm({ task, closeModal }) {
           gap: "12px",
         }}
       >
+
         <button type="submit">
           Save
         </button>
@@ -93,7 +99,9 @@ function EditForm({ task, closeModal }) {
         >
           Cancel
         </button>
+
       </div>
+
     </form>
   );
 }

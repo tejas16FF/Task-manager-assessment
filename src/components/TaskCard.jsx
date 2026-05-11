@@ -3,6 +3,7 @@ import { useTaskStore } from "../store/useTaskStore";
 import EditForm from "./EditForm";
 
 function TaskCard({ task }) {
+
   const { deleteTask, toggleComplete } = useTaskStore();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -21,15 +22,19 @@ function TaskCard({ task }) {
           border: isOverdue ? "2px solid #ef4444" : undefined,
         }}
       >
+
         {/* TOP */}
         <div className="card-top">
 
           {/* LEFT */}
           <div className="card-title-section">
+
             <h3
               className="task-title"
               style={{
-                textDecoration: task.completed ? "line-through" : "none",
+                textDecoration: task.completed
+                  ? "line-through"
+                  : "none",
               }}
             >
               {task.title}
@@ -42,34 +47,50 @@ function TaskCard({ task }) {
             )}
 
             {isOverdue && (
-              <span className="overdue">Overdue</span>
+              <span className="overdue">
+                Overdue
+              </span>
             )}
+
           </div>
 
           {/* CENTER */}
           <div className="card-priority">
+
             <span className={`badge ${task.priority.toLowerCase()}`}>
               {task.priority}
             </span>
+
           </div>
 
           {/* RIGHT */}
           <div className="card-checkbox">
+
             <input
               type="checkbox"
               checked={task.completed}
-              onChange={() => toggleComplete(task.id)}
+              onChange={() => toggleComplete(task)}
             />
+
           </div>
 
         </div>
 
         {/* ACTIONS */}
         <div className="card-actions">
-          <button onClick={() => setIsEditing(true)}>Edit</button>
+
+          <button onClick={() => setIsEditing(true)}>
+            Edit
+          </button>
+
           <div style={{ flex: 1 }} />
-          <button onClick={() => deleteTask(task.id)}>Delete</button>
+
+          <button onClick={() => deleteTask(task._id)}>
+            Delete
+          </button>
+
         </div>
+
       </div>
 
       {/* MODAL */}
@@ -78,15 +99,19 @@ function TaskCard({ task }) {
           className="modal-overlay"
           onClick={() => setIsEditing(false)}
         >
+
           <div
             className="modal"
             onClick={(e) => e.stopPropagation()}
           >
+
             <EditForm
               task={task}
               closeModal={() => setIsEditing(false)}
             />
+
           </div>
+
         </div>
       )}
     </>

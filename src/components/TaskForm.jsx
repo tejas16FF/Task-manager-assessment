@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTaskStore } from "../store/useTaskStore";
 
 function TaskForm() {
+
   const { addTask } = useTaskStore();
 
   const [title, setTitle] = useState("");
@@ -9,7 +10,8 @@ function TaskForm() {
   const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (!title || title.trim().length < 3) {
@@ -17,13 +19,14 @@ function TaskForm() {
       return;
     }
 
-    addTask({
-      id: Date.now(),
+    await addTask({
       title,
       priority,
       dueDate: dueDate || null,
+      completed: false,
     });
 
+    // RESET FORM
     setTitle("");
     setPriority("Low");
     setDueDate("");
@@ -33,8 +36,10 @@ function TaskForm() {
   return (
     <>
       <form
-  onSubmit={handleSubmit}
-  className="task-form">
+        onSubmit={handleSubmit}
+        className="task-form"
+      >
+
         <input
           type="text"
           placeholder="Enter task"
@@ -57,11 +62,17 @@ function TaskForm() {
           onChange={(e) => setDueDate(e.target.value)}
         />
 
-        <button type="submit">Add Task</button>
+        <button type="submit">
+          Add Task
+        </button>
+
       </form>
 
-      {/* ✅ ERROR BELOW FORM */}
-      {error && <p className="error">{error}</p>}
+      {error && (
+        <p className="error">
+          {error}
+        </p>
+      )}
     </>
   );
 }

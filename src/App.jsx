@@ -5,40 +5,30 @@ import FilterBar from "./components/FilterBar";
 import { useTaskStore } from "./store/useTaskStore";
 
 function App() {
-  const { tasks, setTasks } = useTaskStore();
+  const { tasks, fetchTasks } = useTaskStore();
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
-  const [loaded, setLoaded] = useState(false);
   const [theme, setTheme] = useState("light");
 
-  // Load tasks
+  // FETCH TASKS FROM MONGODB
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("tasks")) || [];
-    setTasks(stored);
-    setLoaded(true);
-  }, [setTasks]);
+    fetchTasks();
+  }, []);
 
-  // Save tasks
-  useEffect(() => {
-    if (loaded) {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
-  }, [tasks, loaded]);
-
-  // Load theme
+  // LOAD THEME
   useEffect(() => {
     const saved = localStorage.getItem("theme") || "light";
     setTheme(saved);
   }, []);
 
-  // Apply theme ✅ FIXED
+  // APPLY THEME
   useEffect(() => {
     document.body.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Filter logic
+  // FILTER TASKS
   const filteredTasks = tasks.filter((t) => {
     const matchesFilter =
       filter === "All"
@@ -57,26 +47,33 @@ function App() {
   return (
     <div className="container">
       <div className="top-bar">
-  <h1>Task Manager</h1>
+        <h1>Task Manager</h1>
 
-  <button
-    onClick={() =>
-      setTheme(theme === "light" ? "dark" : "light")
-    }
-  >
-    {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-  </button>
-</div>
+        <button
+          onClick={() =>
+            setTheme(theme === "light" ? "dark" : "light")
+          }
+        >
+          {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+        </button>
+      </div>
+
       <TaskForm />
 
-      <FilterBar filter={filter} setFilter={setFilter} />
+      <FilterBar
+        filter={filter}
+        setFilter={setFilter}
+      />
 
       <input
         type="text"
         placeholder="Search tasks..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ margin: "10px 0", width: "100%" }}
+        style={{
+          margin: "10px 0",
+          width: "100%",
+        }}
       />
 
       <p>Showing {filteredTasks.length} tasks</p>
