@@ -39,6 +39,14 @@ app.get("/", (req, res) => {
   res.send("Server Running");
 });
 
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    jwtConfigured: Boolean(process.env.JWT_SECRET),
+    mongoConfigured: Boolean(process.env.MONGO_URI),
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
