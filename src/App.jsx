@@ -1,29 +1,14 @@
 import { useEffect, useState } from "react";
-import TaskForm from "./components/TaskForm";
-import TaskList from "./components/TaskList";
-import FilterBar from "./components/FilterBar";
-import { useTaskStore } from "./store/useTaskStore";
+import { Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
-  const { tasks, fetchTasks } = useTaskStore();
-
-  const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
-  const [theme, setTheme] = useState("light");
-
-  const completedTasks = tasks.filter((task) => task.completed).length;
-  const pendingTasks = tasks.length - completedTasks;
-
-  // FETCH TASKS FROM MONGODB
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
-  // LOAD THEME
-  useEffect(() => {
-    const saved = localStorage.getItem("theme") || "light";
-    setTheme(saved);
-  }, []);
+  const [theme, setTheme] = useState(() => (
+    localStorage.getItem("theme") || "light"
+  ));
 
   // APPLY THEME
   useEffect(() => {
@@ -31,79 +16,20 @@ function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // FILTER TASKS
-  const filteredTasks = tasks.filter((t) => {
-    const matchesFilter =
-      filter === "All"
-        ? true
-        : filter === "Completed"
-        ? t.completed
-        : t.priority === filter;
-
-    const matchesSearch = t.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    return matchesFilter && matchesSearch;
-  });
-
   return (
-    <div className="container">
-      <div className="top-bar">
-        <h1>Task Manager</h1>
-
-        <button
-          onClick={() =>
-            setTheme(theme === "light" ? "dark" : "light")
-          }
-        >
-          {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-        </button>
-      </div>
-
-      <TaskForm />
-
-      <div className="dashboard">
-        <div className="dashboard-item">
-          <span>Total Tasks</span>
-          <strong>{tasks.length}</strong>
-        </div>
-
-        <div className="dashboard-item">
-          <span>Completed</span>
-          <strong>{completedTasks}</strong>
-        </div>
-
-        <div className="dashboard-item">
-          <span>Pending</span>
-          <strong>{pendingTasks}</strong>
-        </div>
-      </div>
-
-      <FilterBar
-        filter={filter}
-        setFilter={setFilter}
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Dashboard theme={theme} setTheme={setTheme} />
+          </ProtectedRoute>
+        }
       />
-
-      <input
-        type="text"
-        placeholder="Search tasks..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          margin: "10px 0",
-          width: "100%",
-        }}
-      />
-
-      <p>Showing {filteredTasks.length} tasks</p>
-
-      {filteredTasks.length === 0 ? (
-        <p>No tasks match your search</p>
-      ) : (
-        <TaskList tasks={filteredTasks} />
-      )}
-    </div>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

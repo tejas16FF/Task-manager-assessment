@@ -1,6 +1,6 @@
 import TaskCard from "./TaskCard";
 
-function TaskList({ tasks }) {
+function TaskList({ isAdmin, tasks }) {
 
   if (tasks.length === 0) {
     return <p>No tasks yet. Add one above!</p>;
@@ -11,6 +11,7 @@ function TaskList({ tasks }) {
       {tasks.map((task) => (
         <TaskCard
           key={task._id}
+          isAdmin={isAdmin}
           task={task}
         />
       ))}

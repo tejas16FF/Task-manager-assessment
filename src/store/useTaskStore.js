@@ -1,108 +1,117 @@
 import { create } from "zustand";
-import axios from "axios";
+import { api, getErrorMessage } from "../utils/api";
 
-const API_URL = "https://task-manager-assessment-1337.onrender.com/api/tasks";
+function refreshTask(tasks, updatedTask) {
+  return tasks.map((task) => (
+    task._id === updatedTask._id ? updatedTask : task
+  ));
+}
 
 export const useTaskStore = create((set) => ({
-
   tasks: [],
+  members: [],
+  loading: false,
+  error: "",
 
   // FETCH TASKS
   fetchTasks: async () => {
-    try {
+    set({ loading: true, error: "" });
 
-      const response = await axios.get(API_URL);
+    try {
+      const response = await api.get("/tasks");
 
       set({
         tasks: response.data,
+        loading: false,
       });
-
     } catch (error) {
+      set({
+        error: getErrorMessage(error, "Unable to load tasks"),
+        loading: false,
+      });
+    }
+  },
 
-      console.log(error);
+  fetchMembers: async () => {
+    try {
+      const response = await api.get("/users");
+      set({ members: response.data });
+    } catch (error) {
+      set({ error: getErrorMessage(error, "Unable to load members") });
+    }
+  },
 
+  createMember: async (memberData) => {
+    try {
+      const response = await api.post("/users", memberData);
+      set((state) => ({
+        members: [response.data, ...state.members],
+      }));
+      return response.data;
+    } catch (error) {
+      const message = getErrorMessage(error, "Unable to create member");
+      set({ error: message });
+      throw new Error(message, { cause: error });
     }
   },
 
   // ADD TASK
   addTask: async (taskData) => {
     try {
-
-      await axios.post(API_URL, taskData);
-
-      const response = await axios.get(API_URL);
+      await api.post("/tasks", taskData);
+      const response = await api.get("/tasks");
 
       set({
         tasks: response.data,
       });
-
     } catch (error) {
-
-      console.log(error);
-
+      const message = getErrorMessage(error, "Unable to add task");
+      set({ error: message });
+      throw new Error(message, { cause: error });
     }
   },
 
   // DELETE TASK
   deleteTask: async (id) => {
     try {
-
-      await axios.delete(`${API_URL}/${id}`);
-
-      const response = await axios.get(API_URL);
-
-      set({
-        tasks: response.data,
-      });
-
+      await api.delete(`/tasks/${id}`);
+      set((state) => ({
+        tasks: state.tasks.filter((task) => task._id !== id),
+      }));
     } catch (error) {
-
-      console.log(error);
-
+      const message = getErrorMessage(error, "Unable to delete task");
+      set({ error: message });
+      throw new Error(message, { cause: error });
     }
   },
 
   // UPDATE TASK
   updateTask: async (id, updatedData) => {
     try {
-
-      await axios.put(`${API_URL}/${id}`, updatedData);
-
-      const response = await axios.get(API_URL);
-
-      set({
-        tasks: response.data,
-      });
-
+      const response = await api.put(`/tasks/${id}`, updatedData);
+      set((state) => ({
+        tasks: refreshTask(state.tasks, response.data),
+      }));
     } catch (error) {
-
-      console.log(error);
-
+      const message = getErrorMessage(error, "Unable to update task");
+      set({ error: message });
+      throw new Error(message, { cause: error });
     }
   },
 
   // TOGGLE COMPLETE
   toggleComplete: async (task) => {
     try {
-
-      await axios.put(`${API_URL}/${task._id}`, {
-        ...task,
-        remarks: task.remarks || task.description || "",
-        description: task.remarks || task.description || "",
-        completed: !task.completed,
-      });
-
-      const response = await axios.get(API_URL);
-
-      set({
-        tasks: response.data,
-      });
-
+      const response = await api.patch(`/tasks/${task._id}/toggle-complete`);
+      set((state) => ({
+        tasks: refreshTask(state.tasks, response.data),
+      }));
     } catch (error) {
-
-      console.log(error);
-
+      const message = getErrorMessage(error, "Unable to update completion");
+      set({ error: message });
+      throw new Error(message, { cause: error });
     }
   },
 
+  clearError: () => set({ error: "" }),
 }));

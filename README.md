@@ -1,209 +1,164 @@
-# 🚀 Task Manager App
+# Task Manager Team App
 
-A full-stack Task Manager application built using the MERN stack principles with React, Express, MongoDB, Zustand, and Vite.
+A MERN task management app upgraded into a role-based team task system. It keeps the original task features, dark mode, filtering, search, task cards, due dates, remarks, and completion flow, then adds JWT authentication, users, assignment, and role permissions.
 
-This project was developed as part of the Webmoon Technologies Assessment.
+## Features
 
----
+- JWT authentication with register, login, logout, and persisted session state
+- Password hashing with bcrypt
+- Admin and member roles
+- Admin dashboard for all tasks, assignment, edits, deletion, and member creation
+- Member dashboard for assigned tasks only
+- Dedicated completion toggle API so members cannot update other fields
+- MongoDB models with Mongoose refs for `assignedTo` and `createdBy`
+- React Router protected routes
+- Zustand stores for auth and tasks
+- Existing dark mode, filters, search, responsive layout, task cards, priorities, remarks, and overdue highlighting
 
-# 🌐 Live Demo
+## Role System
 
-🔗 https://task-manager-assessment-ten.vercel.app/
+Admin users can:
 
----
-
-# 📂 GitHub Repository
-
-🔗 https://github.com/tejas16FF/Task-manager-assessment
-
----
-
-# ✨ Features
-
-## ✅ Core Features
-
-- Add new tasks
-- Edit existing tasks
+- Create team members
+- Create tasks
+- Assign tasks to users
+- Edit title, remarks, priority, due date, and assignee
 - Delete tasks
-- Mark tasks as completed
-- Dynamic task count display
-- Real-time UI updates
-- Responsive design for mobile & desktop
+- View all tasks
+- Toggle completion
 
----
+Member users can:
 
-# 📌 Task Management Features
+- Login
+- View only tasks assigned to them
+- Toggle completed or uncompleted status
 
-## ➕ Add Tasks
+Members cannot edit task details, delete tasks, assign tasks, or create users. These rules are enforced by backend middleware and controllers, not only by frontend UI checks.
 
-- Create tasks with:
-  - Title
-  - Priority
-  - Due Date
-- Validation for minimum title length
-- Tasks stored in MongoDB Atlas
+## Authentication Flow
 
----
+1. A user registers or logs in through the React pages.
+2. The backend validates credentials and returns a JWT plus a sanitized user object.
+3. The frontend stores the token and current user in localStorage for session persistence.
+4. Axios attaches the token as `Authorization: Bearer <token>`.
+5. Protected backend routes use `authMiddleware` to verify the token.
+6. Admin-only routes also use `adminMiddleware`.
+7. Frontend protected routes redirect unauthenticated users to `/login`.
 
-## ✏️ Edit Tasks
+The first registered user is automatically created as an admin so a fresh database can be bootstrapped. Later users created from the public register page become members. Admins can create members or admins from the dashboard.
 
-- Edit button on each task card
-- Modal popup editor
-- Pre-filled task information
-- Update:
-  - Task title
-  - Priority
-  - Due date
-- Inline validation support
-- Click outside modal to close
+## API
 
----
+Auth:
 
-## 🗑 Delete Tasks
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
 
-- Delete tasks instantly
-- UI updates automatically after deletion
-- MongoDB data synced in real-time
+Tasks:
 
----
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `PUT /api/tasks/:id`
+- `DELETE /api/tasks/:id`
+- `PATCH /api/tasks/:id/toggle-complete`
 
-## ✅ Task Completion
+Users:
 
-- Toggle task completion using checkbox
-- Completed tasks display:
-  - Strikethrough text
-  - Reduced opacity
-- Completion state stored in database
+- `GET /api/users`
+- `POST /api/users`
 
----
-
-# 🔍 Filtering & Search
-
-## 🎯 Priority Filtering
-
-Filter tasks by:
-- All
-- Low
-- Medium
-- High
-- Completed
-
----
-
-## 🔎 Live Search
-
-- Real-time task search
-- Case-insensitive matching
-- Works together with filters
-- Displays empty-state message when no tasks match
-
----
-
-# 📅 Due Date & Overdue Detection
-
-- Optional due dates
-- Due dates shown on task cards
-- Overdue tasks automatically highlighted
-- Overdue indicators include:
-  - Red border
-  - Overdue badge
-
----
-
-# 🌙 Dark Mode
-
-- Light/Dark theme toggle
-- Theme persistence using localStorage
-- Full application dark mode support
-- CSS variable-based theming
-
----
-
-# ⚡ Backend Features
-
-- REST API using Express.js
-- MongoDB Atlas cloud database
-- Mongoose schema & models
-- Full CRUD operations:
-  - Create
-  - Read
-  - Update
-  - Delete
-- Error handling with HTTP status codes
-
----
-
-# 🛠 Tech Stack
-
-## Frontend
-- React
-- Vite
-- Zustand
-- Axios
-- CSS
-
----
-
-## Backend
-- Node.js
-- Express.js
-- MongoDB Atlas
-- Mongoose
-
----
-
-# 🧠 Concepts Used
-
-## Frontend Concepts
-
-- React Hooks
-  - `useState`
-  - `useEffect`
-- Zustand global state management
-- Controlled forms
-- Conditional rendering
-- Dynamic filtering
-- Real-time search
-- Async/Await
-- Axios API calls
-- Modal implementation
-
----
-
-## Backend Concepts
-
-- REST APIs
-- Express Routing
-- Middleware
-- HTTP Methods
-  - GET
-  - POST
-  - PUT
-  - DELETE
-- MongoDB CRUD operations
-- Mongoose Models & Schemas
-- Async database operations
-- Error handling
-
----
-
-# 📁 Folder Structure
+## Folder Structure
 
 ```bash
 task-manager/
-│
-├── server/
-│   ├── models/
-│   ├── routes/
-│   ├── server.js
-│   └── .env
-│
-├── src/
-│   ├── components/
-│   ├── store/
-│   ├── App.jsx
-│   └── main.jsx
-│
-├── public/
-├── package.json
-└── vite.config.js
+  server/
+    controllers/
+      authController.js
+      taskController.js
+      userController.js
+    middleware/
+      adminMiddleware.js
+      authMiddleware.js
+    models/
+      Task.js
+      User.js
+    routes/
+      authRoutes.js
+      taskRoutes.js
+      userRoutes.js
+    utils/
+      generateToken.js
+    server.js
+  src/
+    components/
+      EditForm.jsx
+      FilterBar.jsx
+      MemberForm.jsx
+      ProtectedRoute.jsx
+      TaskCard.jsx
+      TaskForm.jsx
+      TaskList.jsx
+    pages/
+      Dashboard.jsx
+      Login.jsx
+      Register.jsx
+    store/
+      useAuthStore.js
+      useTaskStore.js
+    utils/
+      api.js
+    App.jsx
+    main.jsx
+```
+
+## Environment Variables
+
+Create `server/.env`:
+
+```bash
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_long_random_secret
+PORT=5000
+```
+
+For the frontend, create `.env` in the project root when the API is not running at `http://localhost:5000/api`:
+
+```bash
+VITE_API_URL=https://your-api-url.com/api
+```
+
+## Run Locally
+
+Install frontend dependencies:
+
+```bash
+npm install
+```
+
+Install backend dependencies:
+
+```bash
+cd server
+npm install
+```
+
+Start the backend:
+
+```bash
+cd server
+npm run dev
+```
+
+Start the frontend:
+
+```bash
+npm run dev
+```
+
+## Verification
+
+```bash
+npm run lint
+npm run build
+```

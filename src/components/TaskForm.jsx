@@ -3,12 +3,13 @@ import { useTaskStore } from "../store/useTaskStore";
 
 function TaskForm() {
 
-  const { addTask, tasks } = useTaskStore();
+  const { addTask, members, tasks } = useTaskStore();
 
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -36,10 +37,14 @@ function TaskForm() {
       const sameDueDate =
         (task.dueDate || "") === (dueDate || "");
 
+      const sameAssignee =
+        (task.assignedTo?._id || task.assignedTo || "") === assignedTo;
+
       return (
         sameTitle &&
         samePriority &&
-        sameDueDate
+        sameDueDate &&
+        sameAssignee
       );
 
     });
@@ -47,6 +52,13 @@ function TaskForm() {
     if (duplicateTask) {
 
       setError("Task already exists");
+      return;
+
+    }
+
+    if (!assignedTo) {
+
+      setError("Assign the task to a team member");
       return;
 
     }
@@ -61,6 +73,7 @@ function TaskForm() {
         dueDate: dueDate || null,
         remarks: remarks.trim(),
         description: remarks.trim(),
+        assignedTo,
         completed: false,
       });
 
@@ -69,6 +82,7 @@ function TaskForm() {
       setPriority("Low");
       setDueDate("");
       setRemarks("");
+      setAssignedTo("");
       setError("");
 
     } catch (error) {
@@ -115,6 +129,18 @@ function TaskForm() {
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
         />
+
+        <select
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
+        >
+          <option value="">Assign to</option>
+          {members.map((member) => (
+            <option key={member._id} value={member._id}>
+              {member.name} ({member.role})
+            </option>
+          ))}
+        </select>
 
         <input
           type="text"

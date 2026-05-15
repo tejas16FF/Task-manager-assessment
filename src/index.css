@@ -51,6 +51,17 @@ body {
   margin-bottom: 25px;
 }
 
+.top-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.user-line,
+.muted {
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
 h1 {
   margin: 0;
   font-size: 42px;
@@ -90,6 +101,77 @@ form input {
 
 .remarks-input {
   flex-basis: 100%;
+}
+
+.auth-container {
+  display: grid;
+  min-height: 100vh;
+  padding: 24px;
+  place-items: center;
+}
+
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 420px;
+  padding: 28px;
+  width: 100%;
+}
+
+.auth-card h1 {
+  font-size: 34px;
+}
+
+.auth-link {
+  color: var(--muted);
+  margin: 0;
+}
+
+.auth-link a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.member-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 18px;
+  padding: 18px;
+}
+
+.member-panel-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.member-panel h2 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.member-panel span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.member-form {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.success {
+  color: #16a34a;
+  font-size: 14px;
+  margin-bottom: 0;
 }
 
 /* ===================== */
@@ -138,6 +220,12 @@ button {
 button:hover {
   transform: translateY(-1px);
   opacity: 0.92;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
 }
 
 /* ===================== */
@@ -200,11 +288,12 @@ button:hover {
 /* ===================== */
 /* 🧩 CARD TOP */
 /* ===================== */
-.card-top {
-  display: flex;
+.card-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, auto) minmax(140px, 1fr);
   align-items: center;
-  position: relative;
-  min-height: 40px;
+  column-gap: 22px;
+  row-gap: 16px;
 }
 
 /* ===================== */
@@ -214,13 +303,13 @@ button:hover {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex: 1;
 }
 
 .task-title {
   margin: 0;
   font-size: 22px;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 /* ===================== */
@@ -229,8 +318,20 @@ button:hover {
 .due {
   font-size: 14px;
   color: var(--muted);
-  margin-top: 6px;
-  margin-bottom: 0;
+  margin: 0;
+}
+
+.card-due-date {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.card-status {
+  grid-column: 2;
+  justify-self: center;
+  min-height: 18px;
 }
 
 /* ===================== */
@@ -238,20 +339,20 @@ button:hover {
 /* ===================== */
 .overdue {
   color: #ef4444;
+  display: inline-flex;
   font-size: 13px;
   font-weight: 600;
-  margin-top: 6px;
 }
 
 /* ===================== */
 /* 🏷 PRIORITY */
 /* ===================== */
 .card-priority {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
+  justify-content: center;
+  grid-column: 2;
+  justify-self: center;
 }
 
 /* ===================== */
@@ -261,8 +362,8 @@ button:hover {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-left: auto;
-  width: 40px;
+  grid-column: 3;
+  justify-self: end;
 }
 
 .card-checkbox input[type="checkbox"] {
@@ -307,8 +408,17 @@ button:hover {
 .card-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 18px;
+}
+
+.card-assignee {
+  grid-column: 1;
+  justify-self: start;
+  text-align: left;
+}
+
+.card-actions-right {
+  grid-column: 3;
+  justify-self: end;
 }
 
 .remarks-section {
@@ -434,7 +544,16 @@ button:hover {
 @media (max-width: 700px) {
   .top-bar {
     flex-direction: column;
+    align-items: flex-start;
     gap: 15px;
+  }
+
+  .top-actions {
+    width: 100%;
+  }
+
+  .top-actions button {
+    flex: 1;
   }
 
   form {
@@ -445,15 +564,32 @@ button:hover {
     grid-template-columns: 1fr;
   }
 
-  .card-top {
-    flex-direction: column;
+  .card-layout {
+    grid-template-columns: 1fr;
     align-items: flex-start;
     gap: 12px;
   }
 
+  .card-due-date,
+  .card-priority,
+  .card-checkbox,
+  .card-assignee,
+  .card-actions-right {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+  }
+
   .card-priority {
-    position: static;
-    transform: none;
+    justify-content: flex-start;
+  }
+
+  .card-checkbox {
+    justify-content: flex-start;
+  }
+
+  .card-actions {
+    width: 100%;
   }
 
   h1 {

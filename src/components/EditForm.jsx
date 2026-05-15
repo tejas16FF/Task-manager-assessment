@@ -3,12 +3,13 @@ import { useTaskStore } from "../store/useTaskStore";
 
 function EditForm({ task, closeModal }) {
 
-  const { updateTask } = useTaskStore();
+  const { members, updateTask } = useTaskStore();
 
   const [title, setTitle] = useState(task.title);
   const [priority, setPriority] = useState(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate || "");
   const [remarks, setRemarks] = useState(task.remarks || task.description || "");
+  const [assignedTo, setAssignedTo] = useState(task.assignedTo?._id || task.assignedTo || "");
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
@@ -26,6 +27,7 @@ function EditForm({ task, closeModal }) {
       dueDate,
       remarks: remarks.trim(),
       description: remarks.trim(),
+      assignedTo,
     });
 
     closeModal();
@@ -71,6 +73,18 @@ function EditForm({ task, closeModal }) {
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
         />
+
+        <select
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
+        >
+          <option value="">Assign to</option>
+          {members.map((member) => (
+            <option key={member._id} value={member._id}>
+              {member.name} ({member.role})
+            </option>
+          ))}
+        </select>
 
       </div>
 

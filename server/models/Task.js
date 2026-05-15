@@ -4,19 +4,25 @@ const taskSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    trim: true,
   },
 
+  // Kept for older task records that used description before remarks existed.
   description: {
     type: String,
+    default: "",
   },
 
   remarks: {
     type: String,
     default: "",
+    trim: true,
   },
 
   priority: {
     type: String,
+    enum: ["Low", "Medium", "High"],
+    default: "Medium",
   },
 
   completed: {
@@ -26,6 +32,16 @@ const taskSchema = new mongoose.Schema({
 
   dueDate: {
     type: String,
+  },
+
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
 }, {
   timestamps: true,

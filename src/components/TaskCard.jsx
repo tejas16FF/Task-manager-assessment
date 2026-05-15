@@ -2,12 +2,16 @@ import { useState } from "react";
 import { useTaskStore } from "../store/useTaskStore";
 import EditForm from "./EditForm";
 
-function TaskCard({ task }) {
+function TaskCard({ isAdmin, task }) {
 
   const { deleteTask, toggleComplete } = useTaskStore();
 
   const [isEditing, setIsEditing] = useState(false);
   const remarks = task.remarks || task.description || "";
+  const assignedName = task.assignedTo?.name || "";
+  const dueDateLabel = task.dueDate
+    ? new Date(task.dueDate).toLocaleDateString("en-GB")
+    : "Not set";
 
   const isOverdue =
     !task.completed &&
@@ -24,12 +28,8 @@ function TaskCard({ task }) {
         }}
       >
 
-        {/* TOP */}
-        <div className="card-top">
-
-          {/* LEFT */}
+        <div className="card-layout">
           <div className="card-title-section">
-
             <h3
               className="task-title"
               style={{
@@ -40,22 +40,16 @@ function TaskCard({ task }) {
             >
               {task.title}
             </h3>
-
-            {task.dueDate && (
-              <p className="due">
-                {new Date(task.dueDate).toLocaleDateString()}
-              </p>
-            )}
-
-            {isOverdue && (
-              <span className="overdue">
-                Overdue
-              </span>
-            )}
-
           </div>
 
-          {/* CENTER */}
+          <p className="due card-due-date">
+            Due date: {dueDateLabel}
+          </p>
+
+          <p className="due card-assignee">
+            {assignedName ? `Assigned to ${assignedName}` : "Unassigned"}
+          </p>
+
           <div className="card-priority">
 
             <span className={`badge ${task.priority.toLowerCase()}`}>
@@ -64,7 +58,6 @@ function TaskCard({ task }) {
 
           </div>
 
-          {/* RIGHT */}
           <div className="card-checkbox">
 
             <input
@@ -75,20 +68,33 @@ function TaskCard({ task }) {
 
           </div>
 
-        </div>
+          <div className="card-actions">
 
-        {/* ACTIONS */}
-        <div className="card-actions">
+            {isAdmin && (
+              <button onClick={() => setIsEditing(true)}>
+                Edit
+              </button>
+            )}
 
-          <button onClick={() => setIsEditing(true)}>
-            Edit
-          </button>
+          </div>
 
-          <div style={{ flex: 1 }} />
+          <div className="card-status">
+            {isOverdue && (
+              <span className="overdue">
+                Overdue
+              </span>
+            )}
+          </div>
 
-          <button onClick={() => deleteTask(task._id)}>
-            Delete
-          </button>
+          <div className="card-actions card-actions-right">
+
+            {isAdmin && (
+              <button onClick={() => deleteTask(task._id)}>
+                Delete
+              </button>
+            )}
+
+          </div>
 
         </div>
 
