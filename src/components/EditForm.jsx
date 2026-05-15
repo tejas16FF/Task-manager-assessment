@@ -8,6 +8,7 @@ function EditForm({ task, closeModal }) {
   const [title, setTitle] = useState(task.title);
   const [priority, setPriority] = useState(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate || "");
+  const [remarks, setRemarks] = useState(task.remarks || task.description || "");
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
@@ -23,6 +24,8 @@ function EditForm({ task, closeModal }) {
       title,
       priority,
       dueDate,
+      remarks: remarks.trim(),
+      description: remarks.trim(),
     });
 
     closeModal();
@@ -70,6 +73,13 @@ function EditForm({ task, closeModal }) {
         />
 
       </div>
+
+      <input
+        type="text"
+        placeholder="Remarks"
+        value={remarks}
+        onChange={(e) => setRemarks(e.target.value)}
+      />
 
       {error && (
         <p

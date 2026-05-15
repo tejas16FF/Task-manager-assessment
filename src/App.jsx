@@ -11,6 +11,9 @@ function App() {
   const [search, setSearch] = useState("");
   const [theme, setTheme] = useState("light");
 
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const pendingTasks = tasks.length - completedTasks;
+
   // FETCH TASKS FROM MONGODB
   useEffect(() => {
     fetchTasks();
@@ -59,6 +62,23 @@ function App() {
       </div>
 
       <TaskForm />
+
+      <div className="dashboard">
+        <div className="dashboard-item">
+          <span>Total Tasks</span>
+          <strong>{tasks.length}</strong>
+        </div>
+
+        <div className="dashboard-item">
+          <span>Completed</span>
+          <strong>{completedTasks}</strong>
+        </div>
+
+        <div className="dashboard-item">
+          <span>Pending</span>
+          <strong>{pendingTasks}</strong>
+        </div>
+      </div>
 
       <FilterBar
         filter={filter}

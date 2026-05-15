@@ -88,6 +88,39 @@ form input {
   flex: 1;
 }
 
+.remarks-input {
+  flex-basis: 100%;
+}
+
+/* ===================== */
+/* DASHBOARD */
+/* ===================== */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 18px 0 22px;
+}
+
+.dashboard-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.dashboard-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.dashboard-item strong {
+  font-size: 26px;
+  line-height: 1;
+}
+
 /* ===================== */
 /* 🔘 BUTTON */
 /* ===================== */
@@ -278,6 +311,29 @@ button:hover {
   margin-top: 18px;
 }
 
+.remarks-section {
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+.remarks-section span {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.remarks-section p {
+  color: var(--text);
+  flex: 1;
+  font-size: 14px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 /* ===================== */
 /* 🧱 MODAL */
 /* ===================== */
@@ -383,6 +439,10 @@ button:hover {
 
   form {
     flex-direction: column;
+  }
+
+  .dashboard {
+    grid-template-columns: 1fr;
   }
 
   .card-top {

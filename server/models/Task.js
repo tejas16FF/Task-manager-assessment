@@ -10,9 +10,13 @@ const taskSchema = new mongoose.Schema({
     type: String,
   },
 
+  remarks: {
+    type: String,
+    default: "",
+  },
+
   priority: {
     type: String,
-    default: "Medium",
   },
 
   completed: {

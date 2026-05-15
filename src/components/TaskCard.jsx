@@ -7,6 +7,7 @@ function TaskCard({ task }) {
   const { deleteTask, toggleComplete } = useTaskStore();
 
   const [isEditing, setIsEditing] = useState(false);
+  const remarks = task.remarks || task.description || "";
 
   const isOverdue =
     !task.completed &&
@@ -89,6 +90,11 @@ function TaskCard({ task }) {
             Delete
           </button>
 
+        </div>
+
+        <div className="remarks-section">
+          <span>Remarks:</span>
+          <p>{remarks || "No remarks"}</p>
         </div>
 
       </div>

@@ -8,6 +8,7 @@ function TaskForm() {
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+  const [remarks, setRemarks] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -35,23 +36,10 @@ function TaskForm() {
       const sameDueDate =
         (task.dueDate || "") === (dueDate || "");
 
-      // IF DUEDATE EXISTS
-      if (dueDate) {
-
-        return (
-          sameTitle &&
-          samePriority &&
-          sameDueDate
-        );
-
-      }
-
-      // IF NO DUEDATE
       return (
         sameTitle &&
         samePriority &&
-        !task.completed &&
-        !task.dueDate
+        sameDueDate
       );
 
     });
@@ -71,6 +59,8 @@ function TaskForm() {
         title,
         priority,
         dueDate: dueDate || null,
+        remarks: remarks.trim(),
+        description: remarks.trim(),
         completed: false,
       });
 
@@ -78,6 +68,7 @@ function TaskForm() {
       setTitle("");
       setPriority("Low");
       setDueDate("");
+      setRemarks("");
       setError("");
 
     } catch (error) {
@@ -123,6 +114,14 @@ function TaskForm() {
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
+        />
+
+        <input
+          type="text"
+          placeholder="Remarks"
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+          className="remarks-input"
         />
 
         <button

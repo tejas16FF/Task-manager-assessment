@@ -87,6 +87,8 @@ export const useTaskStore = create((set) => ({
 
       await axios.put(`${API_URL}/${task._id}`, {
         ...task,
+        remarks: task.remarks || task.description || "",
+        description: task.remarks || task.description || "",
         completed: !task.completed,
       });
 
