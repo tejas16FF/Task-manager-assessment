@@ -13,7 +13,6 @@ function ProjectSidebar({
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <span className="sidebar-brand-mark">T</span>
-          <span className="sidebar-brand-text">Workspace</span>
         </div>
 
         <button
