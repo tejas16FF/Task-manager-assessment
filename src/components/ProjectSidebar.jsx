@@ -1,20 +1,35 @@
 import { NavLink } from "react-router-dom";
 
-function ProjectSidebar({ currentUser, isAdmin, projectGroups, sidebarOpen, toggleSidebar, totalTasks }) {
+function ProjectSidebar({
+  currentUser,
+  isAdmin,
+  projectGroups,
+  sidebarOpen,
+  toggleSidebar,
+  totalTasks,
+}) {
   return (
     <aside className="sidebar">
-      <button
-        type="button"
-        className="sidebar-toggle"
-        onClick={toggleSidebar}
-        aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-      >
-        {sidebarOpen ? "<" : ">"}
-      </button>
+      <div className="sidebar-header">
+        <div className="sidebar-brand">
+          <span className="sidebar-brand-mark">T</span>
+          <span className="sidebar-brand-text">Workspace</span>
+        </div>
+
+        <button
+          type="button"
+          className="sidebar-toggle"
+          onClick={toggleSidebar}
+          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          {sidebarOpen ? "<" : ">"}
+        </button>
+      </div>
 
       <div className="profile-panel">
         <div className="profile-avatar">
-          <span aria-hidden="true">&#128100;</span>
+          <span aria-hidden="true">{currentUser?.name?.charAt(0).toUpperCase() || "U"}</span>
         </div>
         <div>
           <strong>{currentUser?.name || "User"}</strong>
@@ -24,14 +39,16 @@ function ProjectSidebar({ currentUser, isAdmin, projectGroups, sidebarOpen, togg
 
       <div className="sidebar-section">
         {isAdmin && (
-          <NavLink className="project-link" data-label="+" to="/manage">
-            <span>Setup</span>
-            <strong>+</strong>
+          <NavLink className="project-link" title="Setup" to="/manage">
+            <span className="project-icon">+</span>
+            <span className="project-name">Setup</span>
+            <strong>New</strong>
           </NavLink>
         )}
 
-        <NavLink className="project-link" data-label="A" to="/tasks" end>
-          <span>All Projects</span>
+        <NavLink className="project-link" title="All Projects" to="/tasks" end>
+          <span className="project-icon">A</span>
+          <span className="project-name">All Projects</span>
           <strong>{totalTasks}</strong>
         </NavLink>
 
@@ -39,10 +56,13 @@ function ProjectSidebar({ currentUser, isAdmin, projectGroups, sidebarOpen, togg
           <div className="project-group" key={project.name}>
             <NavLink
               className="project-link"
-              data-label={project.name.charAt(0).toUpperCase()}
+              title={project.name}
               to={`/projects/${encodeURIComponent(project.name)}`}
             >
-              <span>{project.name}</span>
+              <span className="project-icon">
+                {project.name.charAt(0).toUpperCase()}
+              </span>
+              <span className="project-name">{project.name}</span>
               <strong>{project.tasks.length}</strong>
             </NavLink>
 
