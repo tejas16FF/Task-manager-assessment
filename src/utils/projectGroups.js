@@ -16,3 +16,26 @@ export function buildProjectGroups(tasks) {
     .map(([name, projectTasks]) => ({ name, tasks: projectTasks }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
+
+export function buildProjectGroupsWithProjects(tasks, projects) {
+  const groups = new Map();
+
+  projects.forEach((project) => {
+    groups.set(project.name, []);
+  });
+
+  tasks.forEach((task) => {
+    const projectName = getTaskProjectName(task);
+    const projectTasks = groups.get(projectName) || [];
+    projectTasks.push(task);
+    groups.set(projectName, projectTasks);
+  });
+
+  return Array.from(groups.entries())
+    .map(([name, projectTasks]) => ({ name, tasks: projectTasks }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function getProjectNames(tasks, projects) {
+  return buildProjectGroupsWithProjects(tasks, projects).map((project) => project.name);
+}

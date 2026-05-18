@@ -1,18 +1,24 @@
 import { useState } from "react";
 import { useTaskStore } from "../store/useTaskStore";
+import { getProjectNames } from "../utils/projectGroups";
 
-function TaskForm() {
+function TaskForm({ defaultProject = "" }) {
 
-  const { addTask, members, tasks } = useTaskStore();
+  const { addTask, members, projects, tasks } = useTaskStore();
 
   const [title, setTitle] = useState("");
-  const [project, setProject] = useState("");
+  const [project, setProject] = useState(defaultProject);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
   const [remarks, setRemarks] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const projectNames = getProjectNames(tasks, projects);
+  const firstWord = project.trim().split(/\s+/)[0]?.toLowerCase() || "";
+  const suggestedProjectNames = firstWord
+    ? projectNames.filter((name) => name.toLowerCase().startsWith(firstWord))
+    : projectNames;
 
   const handleSubmit = async (e) => {
 
@@ -86,7 +92,7 @@ function TaskForm() {
 
       // RESET FORM
       setTitle("");
-      setProject("");
+      setProject(defaultProject);
       setPriority("Low");
       setDueDate("");
       setRemarks("");
@@ -128,7 +134,14 @@ function TaskForm() {
           placeholder="Project"
           value={project}
           onChange={(e) => setProject(e.target.value)}
+          list="project-suggestions"
         />
+
+        <datalist id="project-suggestions">
+          {suggestedProjectNames.map((projectName) => (
+            <option key={projectName} value={projectName} />
+          ))}
+        </datalist>
 
         <select
           value={priority}

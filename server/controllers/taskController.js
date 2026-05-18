@@ -1,4 +1,5 @@
 const Task = require("../models/Task");
+const Project = require("../models/Project");
 
 const populateTaskUsers = [
   { path: "assignedTo", select: "name email role" },
@@ -54,6 +55,12 @@ async function createTask(req, res) {
       completed: Boolean(req.body.completed),
     });
 
+    await Project.findOneAndUpdate(
+      { name: payload.project },
+      { $setOnInsert: { name: payload.project, createdBy: req.user._id } },
+      { upsert: true }
+    );
+
     const populatedTask = await Task.findById(task._id).populate(populateTaskUsers);
     return res.status(201).json(populatedTask);
   } catch (error) {
@@ -81,6 +88,12 @@ async function updateTask(req, res) {
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
+
+    await Project.findOneAndUpdate(
+      { name: payload.project },
+      { $setOnInsert: { name: payload.project, createdBy: req.user._id } },
+      { upsert: true }
+    );
 
     return res.json(task);
   } catch (error) {

@@ -10,6 +10,7 @@ function refreshTask(tasks, updatedTask) {
 export const useTaskStore = create((set) => ({
   tasks: [],
   members: [],
+  projects: [],
   loading: false,
   error: "",
 
@@ -41,6 +42,37 @@ export const useTaskStore = create((set) => ({
     }
   },
 
+  fetchProjects: async () => {
+    try {
+      const response = await api.get("/projects");
+      set({ projects: response.data });
+    } catch (error) {
+      set({ error: getErrorMessage(error, "Unable to load projects") });
+    }
+  },
+
+  createProject: async (projectData) => {
+    try {
+      const response = await api.post("/projects", projectData);
+      set((state) => {
+        const exists = state.projects.some((project) => (
+          project.name.toLowerCase() === response.data.name.toLowerCase()
+        ));
+
+        return {
+          projects: exists
+            ? state.projects
+            : [...state.projects, response.data].sort((a, b) => a.name.localeCompare(b.name)),
+        };
+      });
+      return response.data;
+    } catch (error) {
+      const message = getErrorMessage(error, "Unable to create project");
+      set({ error: message });
+      throw new Error(message, { cause: error });
+    }
+  },
+
   createMember: async (memberData) => {
     try {
       const response = await api.post("/users", memberData);
@@ -59,10 +91,14 @@ export const useTaskStore = create((set) => ({
   addTask: async (taskData) => {
     try {
       await api.post("/tasks", taskData);
-      const response = await api.get("/tasks");
+      const [tasksResponse, projectsResponse] = await Promise.all([
+        api.get("/tasks"),
+        api.get("/projects"),
+      ]);
 
       set({
-        tasks: response.data,
+        tasks: tasksResponse.data,
+        projects: projectsResponse.data,
       });
     } catch (error) {
       const message = getErrorMessage(error, "Unable to add task");
@@ -89,7 +125,9 @@ export const useTaskStore = create((set) => ({
   updateTask: async (id, updatedData) => {
     try {
       const response = await api.put(`/tasks/${id}`, updatedData);
+      const projectsResponse = await api.get("/projects");
       set((state) => ({
+        projects: projectsResponse.data,
         tasks: refreshTask(state.tasks, response.data),
       }));
     } catch (error) {

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useTaskStore } from "../store/useTaskStore";
+import { getProjectNames } from "../utils/projectGroups";
 
 function EditForm({ task, closeModal }) {
 
-  const { members, updateTask } = useTaskStore();
+  const { members, projects, tasks, updateTask } = useTaskStore();
 
   const [title, setTitle] = useState(task.title);
   const [project, setProject] = useState(task.project || "General");
@@ -12,6 +13,11 @@ function EditForm({ task, closeModal }) {
   const [remarks, setRemarks] = useState(task.remarks || task.description || "");
   const [assignedTo, setAssignedTo] = useState(task.assignedTo?._id || task.assignedTo || "");
   const [error, setError] = useState("");
+  const projectNames = getProjectNames(tasks, projects);
+  const firstWord = project.trim().split(/\s+/)[0]?.toLowerCase() || "";
+  const suggestedProjectNames = firstWord
+    ? projectNames.filter((name) => name.toLowerCase().startsWith(firstWord))
+    : projectNames;
 
   const handleSubmit = async (e) => {
 
@@ -66,7 +72,14 @@ function EditForm({ task, closeModal }) {
           placeholder="Project"
           value={project}
           onChange={(e) => setProject(e.target.value)}
+          list="edit-project-suggestions"
         />
+
+        <datalist id="edit-project-suggestions">
+          {suggestedProjectNames.map((projectName) => (
+            <option key={projectName} value={projectName} />
+          ))}
+        </datalist>
 
         <select
           value={priority}

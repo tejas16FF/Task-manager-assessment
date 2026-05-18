@@ -39,6 +39,11 @@ body {
   margin: 0 auto;
   max-width: 1180px;
   padding: 32px 24px;
+  transition: grid-template-columns 0.2s ease;
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 78px minmax(0, 1fr);
 }
 
 .sidebar {
@@ -49,6 +54,17 @@ body {
   padding: 18px;
   position: sticky;
   top: 24px;
+  transition: padding 0.2s ease;
+}
+
+.sidebar-toggle {
+  align-items: center;
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  margin-bottom: 14px;
+  padding: 0;
+  width: 34px;
 }
 
 .profile-panel {
@@ -68,6 +84,7 @@ body {
   height: 48px;
   justify-content: center;
   width: 48px;
+  flex: 0 0 48px;
 }
 
 .profile-panel strong,
@@ -104,7 +121,9 @@ body {
   justify-content: space-between;
   padding: 10px 12px;
   text-align: left;
+  text-decoration: none;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .project-link.active {
@@ -133,19 +152,47 @@ body {
   padding-left: 10px;
 }
 
-.project-tasks button {
+.project-tasks a {
   background: transparent;
   color: var(--muted);
   font-size: 13px;
   overflow-wrap: anywhere;
   padding: 6px 0;
   text-align: left;
+  text-decoration: none;
 }
 
-.project-tasks button:hover {
+.project-tasks a:hover,
+.project-tasks a.active {
   color: var(--primary);
   opacity: 1;
   transform: none;
+}
+
+.sidebar-collapsed .sidebar {
+  padding: 14px;
+}
+
+.sidebar-collapsed .profile-panel {
+  justify-content: center;
+}
+
+.sidebar-collapsed .profile-panel div:not(.profile-avatar),
+.sidebar-collapsed .project-link span,
+.sidebar-collapsed .project-link strong,
+.sidebar-collapsed .project-tasks {
+  display: none;
+}
+
+.sidebar-collapsed .project-link {
+  height: 42px;
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-collapsed .project-link::before {
+  content: attr(data-label);
+  font-weight: 700;
 }
 
 /* ===================== */
@@ -183,6 +230,15 @@ h1 {
   margin: 0;
   font-size: 42px;
   font-weight: 700;
+}
+
+.page-heading {
+  margin-bottom: 18px;
+}
+
+.page-heading h2 {
+  font-size: 30px;
+  margin: 0;
 }
 
 /* ===================== */
@@ -289,6 +345,22 @@ form input {
   color: #16a34a;
   font-size: 14px;
   margin-bottom: 0;
+}
+
+.project-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.project-chip-list span {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 7px 10px;
 }
 
 /* ===================== */
