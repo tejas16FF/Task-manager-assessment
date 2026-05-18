@@ -8,6 +8,7 @@ function TaskCard({ isAdmin, task }) {
 
   const [isEditing, setIsEditing] = useState(false);
   const remarks = task.remarks || task.description || "";
+  const projectName = task.project || "General";
   const assignedName = task.assignedTo?.name || "";
   const dueDateLabel = task.dueDate
     ? new Date(task.dueDate).toLocaleDateString("en-GB")
@@ -30,6 +31,7 @@ function TaskCard({ isAdmin, task }) {
 
         <div className="card-layout">
           <div className="card-title-section">
+            <span className="task-project">{projectName}</span>
             <h3
               className="task-title"
               style={{

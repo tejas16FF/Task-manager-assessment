@@ -6,6 +6,7 @@ function TaskForm() {
   const { addTask, members, tasks } = useTaskStore();
 
   const [title, setTitle] = useState("");
+  const [project, setProject] = useState("");
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -34,6 +35,10 @@ function TaskForm() {
       const samePriority =
         task.priority === priority;
 
+      const sameProject =
+        (task.project || "General").trim().toLowerCase() ===
+        (project.trim() || "General").toLowerCase();
+
       const sameDueDate =
         (task.dueDate || "") === (dueDate || "");
 
@@ -42,6 +47,7 @@ function TaskForm() {
 
       return (
         sameTitle &&
+        sameProject &&
         samePriority &&
         sameDueDate &&
         sameAssignee
@@ -69,6 +75,7 @@ function TaskForm() {
 
       await addTask({
         title,
+        project: project.trim() || "General",
         priority,
         dueDate: dueDate || null,
         remarks: remarks.trim(),
@@ -79,6 +86,7 @@ function TaskForm() {
 
       // RESET FORM
       setTitle("");
+      setProject("");
       setPriority("Low");
       setDueDate("");
       setRemarks("");
@@ -113,6 +121,13 @@ function TaskForm() {
           placeholder="Enter task"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <input
+          type="text"
+          placeholder="Project"
+          value={project}
+          onChange={(e) => setProject(e.target.value)}
         />
 
         <select

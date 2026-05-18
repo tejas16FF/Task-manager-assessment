@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TaskForm from "../components/TaskForm";
 import TaskList from "../components/TaskList";
 import FilterBar from "../components/FilterBar";
 import MemberForm from "../components/MemberForm";
+import ProjectSidebar from "../components/ProjectSidebar";
 import { useAuthStore } from "../store/useAuthStore";
 import { useTaskStore } from "../store/useTaskStore";
+import { buildProjectGroups, getTaskProjectName } from "../utils/projectGroups";
 
 function Dashboard({ theme, setTheme }) {
   const { currentUser, logout } = useAuthStore();
@@ -12,10 +14,12 @@ function Dashboard({ theme, setTheme }) {
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [selectedProject, setSelectedProject] = useState("All");
 
   const isAdmin = currentUser?.role === "admin";
   const completedTasks = tasks.filter((task) => task.completed).length;
   const pendingTasks = tasks.length - completedTasks;
+  const projectGroups = useMemo(() => buildProjectGroups(tasks), [tasks]);
 
   useEffect(() => {
     fetchTasks();
@@ -37,79 +41,94 @@ function Dashboard({ theme, setTheme }) {
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    return matchesFilter && matchesSearch;
+    const matchesProject =
+      selectedProject === "All" ||
+      getTaskProjectName(task) === selectedProject;
+
+    return matchesFilter && matchesSearch && matchesProject;
   });
 
   return (
-    <div className="container">
-      <div className="top-bar">
-        <div>
-          <h1>Task Manager</h1>
-          <p className="user-line">
-            {currentUser?.name} - {currentUser?.role}
-          </p>
-        </div>
-
-        <div className="top-actions">
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-            {theme === "light" ? "Dark" : "Light"}
-          </button>
-
-          <button type="button" onClick={logout}>
-            Logout
-          </button>
-        </div>
-      </div>
-
-      {isAdmin && (
-        <>
-          <MemberForm />
-          <TaskForm />
-        </>
-      )}
-
-      <div className="dashboard">
-        <div className="dashboard-item">
-          <span>Total Tasks</span>
-          <strong>{tasks.length}</strong>
-        </div>
-
-        <div className="dashboard-item">
-          <span>Completed</span>
-          <strong>{completedTasks}</strong>
-        </div>
-
-        <div className="dashboard-item">
-          <span>Pending</span>
-          <strong>{pendingTasks}</strong>
-        </div>
-      </div>
-
-      <FilterBar filter={filter} setFilter={setFilter} />
-
-      <input
-        type="text"
-        placeholder="Search tasks..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="search"
+    <div className="app-shell">
+      <ProjectSidebar
+        currentUser={currentUser}
+        isAdmin={isAdmin}
+        projectGroups={projectGroups}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+        totalTasks={tasks.length}
       />
 
-      {error && <p className="error">{error}</p>}
-      {loading && <p className="muted">Loading tasks...</p>}
+      <main className="container">
+        <div className="top-bar">
+          <div>
+            <h1>Task Manager</h1>
+            <p className="user-line">
+              {selectedProject === "All" ? "All projects" : selectedProject}
+            </p>
+          </div>
 
-      <p className="muted">Showing {filteredTasks.length} tasks</p>
+          <div className="top-actions">
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            >
+              {theme === "light" ? "Dark" : "Light"}
+            </button>
 
-      {filteredTasks.length === 0 && !loading ? (
-        <p className="muted">
-          {isAdmin ? "No tasks match your search" : "No assigned tasks found"}
-        </p>
-      ) : (
-        <TaskList tasks={filteredTasks} isAdmin={isAdmin} />
-      )}
+            <button type="button" onClick={logout}>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {isAdmin && (
+          <>
+            <MemberForm />
+            <TaskForm />
+          </>
+        )}
+
+        <div className="dashboard">
+          <div className="dashboard-item">
+            <span>Total Tasks</span>
+            <strong>{tasks.length}</strong>
+          </div>
+
+          <div className="dashboard-item">
+            <span>Completed</span>
+            <strong>{completedTasks}</strong>
+          </div>
+
+          <div className="dashboard-item">
+            <span>Pending</span>
+            <strong>{pendingTasks}</strong>
+          </div>
+        </div>
+
+        <FilterBar filter={filter} setFilter={setFilter} />
+
+        <input
+          type="text"
+          placeholder="Search tasks..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search"
+        />
+
+        {error && <p className="error">{error}</p>}
+        {loading && <p className="muted">Loading tasks...</p>}
+
+        <p className="muted">Showing {filteredTasks.length} tasks</p>
+
+        {filteredTasks.length === 0 && !loading ? (
+          <p className="muted">
+            {isAdmin ? "No tasks match your search" : "No assigned tasks found"}
+          </p>
+        ) : (
+          <TaskList tasks={filteredTasks} isAdmin={isAdmin} />
+        )}
+      </main>
     </div>
   );
 }

@@ -6,6 +6,7 @@ function EditForm({ task, closeModal }) {
   const { members, updateTask } = useTaskStore();
 
   const [title, setTitle] = useState(task.title);
+  const [project, setProject] = useState(task.project || "General");
   const [priority, setPriority] = useState(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate || "");
   const [remarks, setRemarks] = useState(task.remarks || task.description || "");
@@ -23,6 +24,7 @@ function EditForm({ task, closeModal }) {
 
     await updateTask(task._id, {
       title,
+      project: project.trim() || "General",
       priority,
       dueDate,
       remarks: remarks.trim(),
@@ -57,6 +59,13 @@ function EditForm({ task, closeModal }) {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <input
+          type="text"
+          placeholder="Project"
+          value={project}
+          onChange={(e) => setProject(e.target.value)}
         />
 
         <select

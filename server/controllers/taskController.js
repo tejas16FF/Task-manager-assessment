@@ -7,9 +7,11 @@ const populateTaskUsers = [
 
 function normalizeTaskPayload(body) {
   const remarks = body.remarks ?? body.description ?? "";
+  const project = body.project?.trim() || "General";
 
   return {
     title: body.title,
+    project,
     remarks,
     description: remarks,
     priority: body.priority,
