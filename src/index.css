@@ -63,35 +63,8 @@ body {
 .sidebar-header {
   align-items: center;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 18px;
-}
-
-.sidebar-brand {
-  align-items: center;
-  display: flex;
-  gap: 10px;
-  min-width: 0;
-}
-
-.sidebar-brand-mark {
-  align-items: center;
-  background: var(--primary);
-  border-radius: 10px;
-  color: #ffffff;
-  display: flex;
-  flex: 0 0 36px;
-  font-weight: 800;
-  height: 36px;
-  justify-content: center;
-  width: 36px;
-}
-
-.sidebar-brand-text {
-  font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .sidebar-toggle {
@@ -120,7 +93,6 @@ body {
   color: #1d4ed8;
   display: flex;
   font-size: 18px;
-  font-weight: 800;
   height: 48px;
   justify-content: center;
   width: 48px;
@@ -247,15 +219,10 @@ body {
   gap: 10px;
 }
 
-.sidebar-collapsed .sidebar-brand {
-  justify-content: center;
-}
-
 .sidebar-collapsed .profile-panel {
   justify-content: center;
 }
 
-.sidebar-collapsed .sidebar-brand-text,
 .sidebar-collapsed .profile-panel > div:not(.profile-avatar),
 .sidebar-collapsed .project-name,
 .sidebar-collapsed .project-link strong,
@@ -836,7 +803,6 @@ button:disabled {
     flex-direction: row;
   }
 
-  .sidebar-collapsed .sidebar-brand-text,
   .sidebar-collapsed .profile-panel > div:not(.profile-avatar),
   .sidebar-collapsed .project-name,
   .sidebar-collapsed .project-link strong {

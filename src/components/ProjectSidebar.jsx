@@ -11,10 +11,6 @@ function ProjectSidebar({
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <div className="sidebar-brand">
-          <span className="sidebar-brand-mark">T</span>
-        </div>
-
         <button
           type="button"
           className="sidebar-toggle"
@@ -28,7 +24,7 @@ function ProjectSidebar({
 
       <div className="profile-panel">
         <div className="profile-avatar">
-          <span aria-hidden="true">{currentUser?.name?.charAt(0).toUpperCase() || "U"}</span>
+          <span aria-hidden="true">&#128100;</span>
         </div>
         <div>
           <strong>{currentUser?.name || "User"}</strong>
