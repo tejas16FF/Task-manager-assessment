@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
+
 import ProjectSidebar from "./ProjectSidebar";
+
 import { useAuthStore } from "../store/useAuthStore";
 import { useTaskStore } from "../store/useTaskStore";
+
 import { buildProjectGroupsWithProjects } from "../utils/projectGroups";
 
 function AppLayout({ theme, setTheme }) {
-  const { currentUser, logout } = useAuthStore();
+  const { currentUser, logout } =
+    useAuthStore();
+
   const {
     fetchMembers,
     fetchProjects,
@@ -15,68 +20,113 @@ function AppLayout({ theme, setTheme }) {
     projects,
     tasks,
   } = useTaskStore();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const isAdmin = currentUser?.role === "admin";
+  const [sidebarOpen, setSidebarOpen] =
+    useState(true);
+
+  const isAdmin =
+    currentUser?.role === "admin";
+
   const projectGroups = useMemo(
-    () => buildProjectGroupsWithProjects(tasks, projects),
+    () =>
+      buildProjectGroupsWithProjects(
+        tasks,
+        projects
+      ),
     [projects, tasks]
   );
 
   useEffect(() => {
     fetchTasks();
+
     fetchProjects();
 
     if (isAdmin) {
       fetchMembers();
     }
-  }, [fetchMembers, fetchProjects, fetchTasks, isAdmin]);
+  }, [
+    fetchMembers,
+    fetchProjects,
+    fetchTasks,
+    isAdmin,
+  ]);
 
   return (
-    <div className={`app-shell ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
+    <div
+      className={`app-shell ${
+        sidebarOpen
+          ? ""
+          : "sidebar-collapsed"
+      }`}
+    >
       <ProjectSidebar
         currentUser={currentUser}
         isAdmin={isAdmin}
         projectGroups={projectGroups}
         sidebarOpen={sidebarOpen}
-        toggleSidebar={() => setSidebarOpen((open) => !open)}
+        toggleSidebar={() =>
+          setSidebarOpen((o) => !o)
+        }
         totalTasks={tasks.length}
       />
 
-      <main className="container">
-        <div className="top-bar">
-          <div>
-            <h1>Task Manager</h1>
-            <p className="user-line">
-              {isAdmin ? "Admin workspace" : "Assigned workspace"}
-            </p>
-          </div>
+      <div className="main-content">
+        {/* Top bar */}
+        <header className="topbar">
+          <span className="topbar-title">
+            TaskFlow
+          </span>
 
-          <div className="top-actions">
+          <span className="topbar-sub">
+            {isAdmin
+              ? "Admin workspace"
+              : "My workspace"}
+          </span>
+
+          <div className="topbar-spacer" />
+
+          <div className="topbar-actions">
             <button
-              type="button"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              className="theme-btn"
+              title="Toggle theme"
+              onClick={() =>
+                setTheme(
+                  theme === "light"
+                    ? "dark"
+                    : "light"
+                )
+              }
             >
-              {theme === "light" ? "Dark" : "Light"}
+              {theme === "light"
+                ? "🌙"
+                : "☀️"}
             </button>
 
-            <button type="button" onClick={logout}>
+            <button
+              className="logout-btn"
+              onClick={logout}
+            >
+              <span>↩</span>
+
               Logout
             </button>
           </div>
-        </div>
+        </header>
 
-        <Outlet
-          context={{
-            currentUser,
-            isAdmin,
-            members,
-            projectGroups,
-            projects,
-            tasks,
-          }}
-        />
-      </main>
+        {/* Page content */}
+        <main className="page-content">
+          <Outlet
+            context={{
+              currentUser,
+              isAdmin,
+              members,
+              projectGroups,
+              projects,
+              tasks,
+            }}
+          />
+        </main>
+      </div>
     </div>
   );
 }

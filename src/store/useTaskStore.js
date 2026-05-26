@@ -136,20 +136,36 @@ export const useTaskStore = create((set) => ({
       throw new Error(message, { cause: error });
     }
   },
+toggleComplete: async (taskId) => {
+  try {
+    await api.patch(
+      `/tasks/${taskId}/toggle-complete`
+    );
 
-  // TOGGLE COMPLETE
-  toggleComplete: async (task) => {
-    try {
-      const response = await api.patch(`/tasks/${task._id}/toggle-complete`);
-      set((state) => ({
-        tasks: refreshTask(state.tasks, response.data),
-      }));
-    } catch (error) {
-      const message = getErrorMessage(error, "Unable to update completion");
-      set({ error: message });
-      throw new Error(message, { cause: error });
-    }
-  },
+    const response =
+      await api.get("/tasks");
 
+    set({
+      tasks: response.data,
+    });
+  } catch (error) {
+    const message =
+      getErrorMessage(
+        error,
+        "Unable to update completion"
+      );
+
+    console.error(
+      "TOGGLE ERROR:",
+      error
+    );
+
+    set({ error: message });
+
+    throw new Error(message, {
+      cause: error,
+    });
+  }
+},
   clearError: () => set({ error: "" }),
 }));

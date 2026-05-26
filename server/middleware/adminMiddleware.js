@@ -1,9 +1,9 @@
-function adminMiddleware(req, res, next) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(403).json({ message: "Admin access required" });
-  }
+const authorizeRoles = require("./role.middleware");
 
-  next();
+const adminOnly = authorizeRoles("admin", { message: "Admin access required" });
+
+function adminMiddleware(req, res, next) {
+  return adminOnly(req, res, next);
 }
 
 module.exports = adminMiddleware;

@@ -1,13 +1,28 @@
-function FilterBar({ filter, setFilter }) {
-  const filters = ["All", "Low", "Medium", "High", "Completed"];
+function FilterBar({
+  filter,
+  setFilter,
+}) {
+  const filters = [
+    "All",
+    "Low",
+    "Medium",
+    "High",
+    "Completed",
+  ];
 
   return (
-    <div className="filter-container">
+    <div className="filter-bar">
       {filters.map((f) => (
         <button
           key={f}
-          onClick={() => setFilter(f)}
-          className={`filter-btn ${filter === f ? "active" : ""}`}
+          onClick={() =>
+            setFilter(f)
+          }
+          className={`filter-btn${
+            filter === f
+              ? " active"
+              : ""
+          }`}
         >
           {f}
         </button>

@@ -1,40 +1,31 @@
-
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
-
+const { createCorsOptions } = require("./config/cors");
+const connectDatabase = require("./config/db");
+const { getPort } = require("./config/env");
+const {
+  errorHandler,
+  notFoundHandler,
+} = require("./middleware/error.middleware");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const app = express();
+const PORT = getPort();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-  "https://task-manager-assessment-ten.vercel.app",
-];
-
-app.use(cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("Not allowed by CORS"));
-  },
-}));
+app.use(cors(createCorsOptions()));
 app.use(express.json());
 
 if (!process.env.JWT_SECRET) {
   console.warn("JWT_SECRET is not set. Set it in server/.env before using auth in production.");
 }
-
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/tasks", require("./routes/taskRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/projects", require("./routes/projectRoutes"));
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+app.use("/api/analytics", analyticsRoutes);
+
+app.use("/api/activities", require("./routes/activityRoutes"));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Server Running");
@@ -48,8 +39,25 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+app.use(notFoundHandler);
+app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const http = require("http");
+const {
+  initializeSocket,
+} = require("./sockets/socket");
+
+const server = http.createServer(app);
+
+initializeSocket(server);
+
+connectDatabase()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Unable to start server", error);
+    process.exit(1);
+  });

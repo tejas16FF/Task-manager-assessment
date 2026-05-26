@@ -1,9 +1,7 @@
-function getJwtSecret() {
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is missing on the server");
-  }
+const { requireEnv } = require("../config/env");
 
-  return process.env.JWT_SECRET;
+function getJwtSecret() {
+  return requireEnv("JWT_SECRET");
 }
 
 module.exports = {

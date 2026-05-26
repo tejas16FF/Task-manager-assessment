@@ -1,131 +1,304 @@
 import { useState } from "react";
+
 import { useTaskStore } from "../store/useTaskStore";
+
 import EditForm from "./EditForm";
 
-function TaskCard({ isAdmin, task }) {
+function TaskCard({
+  isAdmin,
+  task,
+}) {
+  const {
+    deleteTask,
+    toggleComplete,
+  } = useTaskStore();
 
-  const { deleteTask, toggleComplete } = useTaskStore();
+  const [isEditing, setIsEditing] =
+    useState(false);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const remarks = task.remarks || task.description || "";
-  const projectName = task.project || "General";
-  const assignedName = task.assignedTo?.name || "";
+  const remarks =
+    task.remarks ||
+    task.description ||
+    "";
+
+  const projectName =
+    task.project || "General";
+
+  const assignedName =
+    task.assignedTo?.name || "";
+
+  const isCompleted =
+    task.status === "completed";
+
   const dueDateLabel = task.dueDate
-    ? new Date(task.dueDate).toLocaleDateString("en-GB")
-    : "Not set";
+    ? new Date(
+        task.dueDate
+      ).toLocaleDateString(
+        "en-GB",
+        {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }
+      )
+    : "No due date";
 
   const isOverdue =
-    !task.completed &&
+    !isCompleted &&
     task.dueDate &&
-    new Date(task.dueDate) < new Date().setHours(0, 0, 0, 0);
+    new Date(task.dueDate) <
+      new Date().setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+  const cardClass = [
+    "task-card",
+    isCompleted
+      ? "completed-card"
+      : "",
+    isOverdue
+      ? "overdue-card"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <>
-      <div
-        className="card"
-        style={{
-          opacity: task.completed ? 0.65 : 1,
-          border: isOverdue ? "2px solid #ef4444" : undefined,
-        }}
-      >
+      <div className={cardClass}>
+        {/* Checkbox */}
+        <div className="task-check-col">
+          <input
+            type="checkbox"
+            className="task-checkbox"
+            checked={isCompleted}
+            onChange={() =>
+              toggleComplete(task._id)
+            }
+            style={{
+              width: 20,
+              height: 20,
+              accentColor:
+                "var(--primary)",
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+          />
+        </div>
 
-        <div className="card-layout">
-          <div className="card-title-section">
-            <span className="task-project">{projectName}</span>
-            <h3
-              className="task-title"
-              style={{
-                textDecoration: task.completed
-                  ? "line-through"
-                  : "none",
-              }}
+        {/* Body */}
+        <div className="task-body">
+          <span className="task-project-tag">
+            {projectName}
+          </span>
+
+          <p
+            className={`task-title-text${
+              isCompleted
+                ? " done"
+                : ""
+            }`}
+          >
+            {task.title}
+          </p>
+
+          <div className="task-meta">
+            <span
+              className={`badge ${task.priority.toLowerCase()}`}
             >
-              {task.title}
-            </h3>
-          </div>
-
-          <p className="due card-due-date">
-            Due date: {dueDateLabel}
-          </p>
-
-          <p className="due card-assignee">
-            {assignedName ? `Assigned to ${assignedName}` : "Unassigned"}
-          </p>
-
-          <div className="card-priority">
-
-            <span className={`badge ${task.priority.toLowerCase()}`}>
               {task.priority}
             </span>
 
-          </div>
+            {assignedName && (
+              <span className="task-meta-item">
+                <span>👤</span>
 
-          <div className="card-checkbox">
-
-            <input
-              type="checkbox"
-              checked={task.completed}
-              onChange={() => toggleComplete(task)}
-            />
-
-          </div>
-
-          <div className="card-actions">
-
-            {isAdmin && (
-              <button onClick={() => setIsEditing(true)}>
-                Edit
-              </button>
+                {assignedName}
+              </span>
             )}
 
-          </div>
+            <span className="task-meta-item">
+              <span>📅</span>
 
-          <div className="card-status">
+              {dueDateLabel}
+            </span>
+
             {isOverdue && (
-              <span className="overdue">
+              <span className="badge-status overdue">
                 Overdue
+              </span>
+            )}
+
+            {isCompleted && (
+              <span className="badge-status completed">
+                Done
               </span>
             )}
           </div>
 
-          <div className="card-actions card-actions-right">
+          {remarks && (
+            <div className="task-remarks-row">
+              <strong>Note:</strong>
 
-            {isAdmin && (
-              <button onClick={() => deleteTask(task._id)}>
-                Delete
-              </button>
-            )}
+              <span>{remarks}</span>
+            </div>
+          )}
+        </div>
+        <div
+  style={{
+    marginTop: 12,
+    fontSize: 13,
+    color: "var(--muted)",
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+  }}
+>
+  <span>
+    Assigned:
+    {" "}
+    {new Date(
+      task.assignedAt || task.createdAt
+    ).toLocaleString()}
+  </span>
 
+  {task.status ===
+"pending" && (
+  <span
+    style={{
+      color: "#f59e0b",
+    }}
+  >
+    Waiting for acceptance/start
+  </span>
+)}
+
+{task.status ===
+"in_progress" && (
+  <span
+    style={{
+      color: "#3b82f6",
+    }}
+  >
+    In Progress
+    {" • "}
+    Started:
+    {" "}
+    {task.startedAt
+      ? new Date(
+          task.startedAt
+        ).toLocaleString()
+      : "Recently"}
+  </span>
+)}
+
+{task.status ===
+"completed" && (
+  <span
+    style={{
+      color: "#10b981",
+    }}
+  >
+    Completed:
+    {" "}
+    {task.completedAt
+      ? new Date(
+          task.completedAt
+        ).toLocaleString()
+      : "Completed"}
+  </span>
+)}
+
+
+  {task.totalTimeTaken > 0 && (
+    <span>
+      Work Time:
+      {" "}
+      {Math.floor(
+        task.totalTimeTaken / 3600
+      )}h
+      {" "}
+      {Math.floor(
+        (
+          task.totalTimeTaken %
+          3600
+        ) / 60
+      )}m
+    </span>
+  )}
+</div>
+
+        {/* Actions */}
+        {isAdmin && (
+          <div
+  className="task-actions"
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    alignSelf: "flex-start",
+    marginTop: "10px",
+  }}
+>
+            <button
+              className="btn-icon"
+              onClick={() =>
+                setIsEditing(true)
+              }
+              title="Edit task"
+            >
+              ✏
+            </button>
+
+            <button
+              className="btn-icon"
+              onClick={() =>
+                deleteTask(task._id)
+              }
+              title="Delete task"
+              style={{
+                color:
+                  "var(--danger)",
+              }}
+            >
+              🗑
+            </button>
           </div>
-
-        </div>
-
-        <div className="remarks-section">
-          <span>Remarks:</span>
-          <p>{remarks || "No remarks"}</p>
-        </div>
-
+        )}
       </div>
 
-      {/* MODAL */}
       {isEditing && (
         <div
           className="modal-overlay"
-          onClick={() => setIsEditing(false)}
+          onClick={() =>
+            setIsEditing(false)
+          }
         >
-
           <div
             className="modal"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) =>
+              e.stopPropagation()
+            }
           >
+            <button
+              className="modal-close"
+              onClick={() =>
+                setIsEditing(false)
+              }
+            >
+              ✕
+            </button>
 
             <EditForm
               task={task}
-              closeModal={() => setIsEditing(false)}
+              closeModal={() =>
+                setIsEditing(false)
+              }
             />
-
           </div>
-
         </div>
       )}
     </>
