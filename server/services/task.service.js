@@ -60,9 +60,7 @@ async function populateTask(taskId) {
 }
 
 async function getTasks(currentUser, filters = {}) {
-  const query = canReadAllTasks(currentUser)
-    ? { assignedTo: { $ne: currentUser._id } }
-    : { assignedTo: currentUser._id };
+  const query = { assignedTo: currentUser._id };
 
   if (filters.status) {
     query.status = filters.status;

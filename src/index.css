@@ -1154,6 +1154,52 @@ justify-content: space-between;
 .project-directory-footer strong {
   font-size: 20px;
 }
+.project-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.analytics-page {
+  padding: 24px;
+}
+.analytics-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.analytics-choice-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text);
+  padding: 24px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.analytics-choice-card:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.analytics-choice-card strong {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+.analytics-choice-card span {
+  color: var(--muted);
+}
+.analytics-mode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+.analytics-mode-header h3 {
+  font-size: 20px;
+}
 .employee-project-card {
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -1240,6 +1286,9 @@ justify-content: space-between;
   }
   .admin-task-gateway-actions {
     flex-direction: column;
+  }
+  .analytics-choice-grid {
+    grid-template-columns: 1fr;
   }
   .employees-layout { grid-template-columns: 1fr; }
   .manage-grid { grid-template-columns: 1fr; }

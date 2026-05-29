@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
   createProject,
+  deleteProject,
   getProjects,
   getProjectDetails,
 } = require("../controllers/projectController");
@@ -109,33 +110,7 @@ router.put(
 router.delete(
   "/:id",
   canManageProjects,
-  async (req, res, next) => {
-    try {
-      const Project =
-        require("../models/projectModel");
-
-      const project =
-        await Project.findByIdAndDelete(
-          req.params.id
-        );
-
-      if (!project) {
-        return res
-          .status(404)
-          .json({
-            message:
-              "Project not found",
-          });
-      }
-
-      res.status(200).json({
-        message:
-          "Project deleted successfully",
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  deleteProject
 );
 
 module.exports = router;

@@ -12,18 +12,16 @@ router.use(authMiddleware);
 
 router.get("/", async (req, res) => {
   try {
-    let filter = {};
-
-    // EMPLOYEE / MEMBER
     if (
       req.user.role !== "admin"
     ) {
-      filter.assignedTo =
-        req.user._id;
+      return res.status(403).json({
+        message: "Analytics is available for admins only",
+      });
     }
 
     const tasks =
-      await Task.find(filter)
+      await Task.find({})
         .populate(
           "assignedTo",
           "name"
@@ -54,6 +52,7 @@ router.get("/", async (req, res) => {
       ).length;
 
     const employeeMap = {};
+    const projectMap = {};
 
     tasks.forEach((task) => {
       const employee =
@@ -81,11 +80,34 @@ router.get("/", async (req, res) => {
           employee
         ].completed += 1;
       }
+
+      const project =
+        task.project ||
+        "General";
+
+      if (!projectMap[project]) {
+        projectMap[project] = {
+          name: project,
+          total: 0,
+          completed: 0,
+        };
+      }
+
+      projectMap[project].total += 1;
+
+      if (task.status === "completed") {
+        projectMap[project].completed += 1;
+      }
     });
 
     const employeeStats =
       Object.values(
         employeeMap
+      );
+
+    const projectStats =
+      Object.values(
+        projectMap
       );
 
     res.json({
@@ -94,6 +116,7 @@ router.get("/", async (req, res) => {
       pendingTasks,
       inProgressTasks,
       employeeStats,
+      projectStats,
     });
   } catch (error) {
     console.error(error);

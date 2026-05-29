@@ -10,6 +10,12 @@ const createProject = asyncHandler(async (req, res) => {
   const project = await projectService.createProject(req.body, req.user);
   return res.status(201).json(project);
 });
+
+const deleteProject = asyncHandler(async (req, res) => {
+  const result = await projectService.deleteProject(req.params.id);
+  return res.json(result);
+});
+
 const getProjectDetails = asyncHandler(async (req, res) => {
   const project = await projectService.getProjectDetails(
     req.params.id
@@ -19,6 +25,7 @@ const getProjectDetails = asyncHandler(async (req, res) => {
 });
 module.exports = {
   createProject,
+  deleteProject,
   getProjects,
   getProjectDetails,
 };

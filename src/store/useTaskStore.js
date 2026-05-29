@@ -73,6 +73,25 @@ export const useTaskStore = create((set) => ({
     }
   },
 
+  deleteProject: async (id) => {
+    try {
+      await api.delete(`/projects/${id}`);
+      const [tasksResponse, projectsResponse] = await Promise.all([
+        api.get("/tasks"),
+        api.get("/projects"),
+      ]);
+
+      set({
+        tasks: tasksResponse.data,
+        projects: projectsResponse.data,
+      });
+    } catch (error) {
+      const message = getErrorMessage(error, "Unable to delete project");
+      set({ error: message });
+      throw new Error(message, { cause: error });
+    }
+  },
+
   createMember: async (memberData) => {
     try {
       const response = await api.post("/users", memberData);

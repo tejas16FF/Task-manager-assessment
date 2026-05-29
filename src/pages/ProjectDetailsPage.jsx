@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { api } from "../utils/api";
+import { useTaskStore } from "../store/useTaskStore";
 
 function ProjectDetailsPage() {
   const { id } = useParams();
+  const { isAdmin } = useOutletContext();
+  const { deleteTask } = useTaskStore();
 
   const [projectData, setProjectData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,6 +27,17 @@ function ProjectDetailsPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleDeleteTask(taskId) {
+    const confirmed = window.confirm("Delete this task?");
+
+    if (!confirmed) {
+      return;
+    }
+
+    await deleteTask(taskId);
+    await fetchProjectDetails();
   }
 
   if (loading) {
@@ -147,6 +161,15 @@ function ProjectDetailsPage() {
             >
               Details
             </Link>
+
+            {isAdmin && (
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => handleDeleteTask(task._id)}
+              >
+                Delete
+              </button>
+            )}
           </div>
         ))}
       </div>

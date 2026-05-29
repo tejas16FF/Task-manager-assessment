@@ -1,24 +1,30 @@
 import { Link, useOutletContext } from "react-router-dom";
+import { useTaskStore } from "../store/useTaskStore";
 
 function ProjectsPage() {
-  const { projectGroups, projects } = useOutletContext();
+  const { projects } = useOutletContext();
+  const { deleteProject } = useTaskStore();
 
-  const rows = projectGroups.map((group) => {
-    const project = projects.find((item) => item.name === group.name) || group;
-    const completedTasks = group.tasks.filter((task) => task.completed).length;
-    const progress =
-      group.tasks.length === 0
-        ? project.progress || 0
-        : Math.round((completedTasks / group.tasks.length) * 100);
+  const handleDelete = async (project) => {
+    if (!project._id) {
+      return;
+    }
 
-    return {
-      ...project,
-      name: group.name,
-      taskCount: group.tasks.length,
-      completedTasks,
-      progress,
-    };
-  });
+    const confirmed = window.confirm(
+      `Delete "${project.name}" and all tasks in this project?`
+    );
+
+    if (confirmed) {
+      await deleteProject(project._id);
+    }
+  };
+
+  const rows = projects.map((project) => ({
+    ...project,
+    taskCount: project.stats?.totalTasks || 0,
+    completedTasks: project.stats?.completedTasks || 0,
+    progress: project.progress || 0,
+  }));
 
   return (
     <div className="projects-page">
@@ -52,21 +58,32 @@ function ProjectsPage() {
 
             <div className="project-directory-footer">
               <strong>{project.progress}%</strong>
-              {project._id ? (
-                <Link
-                  className="btn btn-secondary btn-sm"
-                  to={`/project-details/${project._id}`}
-                >
-                  Details
-                </Link>
-              ) : (
-                <Link
-                  className="btn btn-secondary btn-sm"
-                  to={`/projects/${encodeURIComponent(project.name)}`}
-                >
-                  Details
-                </Link>
-              )}
+              <div className="project-card-actions">
+                {project._id ? (
+                  <Link
+                    className="btn btn-secondary btn-sm"
+                    to={`/project-details/${project._id}`}
+                  >
+                    Details
+                  </Link>
+                ) : (
+                  <Link
+                    className="btn btn-secondary btn-sm"
+                    to={`/projects/${encodeURIComponent(project.name)}`}
+                  >
+                    Details
+                  </Link>
+                )}
+
+                {project._id && (
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(project)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
           </article>
         ))}

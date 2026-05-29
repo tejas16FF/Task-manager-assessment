@@ -115,6 +115,23 @@ async function createProject(payload, currentUser) {
 
   return serializeProject(project);
 }
+
+async function deleteProject(projectId) {
+  const project = await Project.findByIdAndDelete(projectId);
+
+  if (!project) {
+    throw new AppError("Project not found", 404);
+  }
+
+  await Task.deleteMany({
+    $or: [
+      { projectRef: project._id },
+      { project: project.name },
+    ],
+  });
+
+  return { message: "Project deleted successfully" };
+}
 async function getProjectDetails(projectId) {
   const project = await Project.findById(projectId)
     .populate({
@@ -150,6 +167,7 @@ async function getProjectDetails(projectId) {
 }
 module.exports = {
   createProject,
+  deleteProject,
   findOrCreateProjectByName,
   getProjects,
   getProjectDetails,

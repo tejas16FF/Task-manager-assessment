@@ -1,36 +1,8 @@
 import { NavLink } from "react-router-dom";
 
-// Project dot colors
-const PROJECT_COLORS = [
-  "#6366f1",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#3b82f6",
-  "#8b5cf6",
-  "#ec4899",
-  "#14b8a6",
-];
-
-function getProjectColor(name) {
-  let hash = 0;
-
-  for (let i = 0; i < name.length; i++) {
-    hash =
-      name.charCodeAt(i) +
-      ((hash << 5) - hash);
-  }
-
-  return PROJECT_COLORS[
-    Math.abs(hash) %
-      PROJECT_COLORS.length
-  ];
-}
-
 function ProjectSidebar({
   currentUser,
   isAdmin,
-  projectGroups,
   sidebarOpen,
   toggleSidebar,
   totalTasks,
@@ -195,6 +167,7 @@ function ProjectSidebar({
             Kanban Board
           </span>
         </NavLink>
+        {isAdmin && (
 <NavLink
   className={({ isActive }) =>
     `nav-item${
@@ -214,6 +187,7 @@ function ProjectSidebar({
     Analytics
   </span>
 </NavLink>
+)}
         <NavLink
           className={({ isActive }) =>
             `nav-item${
@@ -299,67 +273,7 @@ function ProjectSidebar({
           </>
         )}
 
-        {projectGroups.length >
-          0 && (
-          <>
-            <div
-              className="sidebar-section-label"
-              style={{
-                marginTop: 8,
-              }}
-            >
-              Projects
-            </div>
-          </>
-        )}
       </nav>
-
-      {projectGroups.length >
-        0 && (
-        <div className="sidebar-projects-section">
-          {projectGroups.map(
-            (project) => (
-              <NavLink
-                key={project.name}
-                className={({
-                  isActive,
-                }) =>
-                  `project-item${
-                    isActive
-                      ? " active"
-                      : ""
-                  }`
-                }
-                to={`/projects/${encodeURIComponent(
-                  project.name
-                )}`}
-                title={project.name}
-              >
-                <span
-                  className="project-dot"
-                  style={{
-                    background:
-                      getProjectColor(
-                        project.name
-                      ),
-                  }}
-                />
-
-                <span className="project-item-name">
-                  {project.name}
-                </span>
-
-                <span className="project-item-count">
-                  {
-                    project.tasks
-                      .length
-                  }
-                </span>
-              </NavLink>
-            )
-          )}
-        </div>
-      )}
     </aside>
   );
 }
