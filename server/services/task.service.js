@@ -262,9 +262,9 @@ async function applyTaskStatus(task, nextStatus, currentUser) {
     task.assignedTo &&
     task.assignedTo.toString() === currentUser._id.toString();
 
-  if (canReadAllTasks(currentUser) || !isAssignedEmployee) {
+  if (!canReadAllTasks(currentUser) && !isAssignedEmployee) {
     throw new AppError(
-      "Only the assigned employee can update task status",
+      "Only admins or the assigned employee can update task status",
       403
     );
   }

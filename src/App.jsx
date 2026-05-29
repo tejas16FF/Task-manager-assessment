@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import ManagePage from "./pages/ManagePage";
 import ProjectTasksPage from "./pages/ProjectTasksPage";
 import ProjectDetailsPage from "./pages/ProjectDetailsPage";
+import ProjectsPage from "./pages/ProjectsPage";
 import Register from "./pages/Register";
 import TasksPage from "./pages/TasksPage";
 import TaskDetailsPage from "./pages/TaskDetailsPage";
@@ -43,6 +44,7 @@ function App() {
         <Route path="employees/:id" element={<EmployeesPage />} />
         <Route path="activities" element={<ActivityPage />} />
         <Route path="kanban" element={<KanbanPage />} />
+        <Route path="projects" element={<ProjectsPage />} />
         <Route
   path="analytics"
   element={<AnalyticsPage />}

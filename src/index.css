@@ -1107,6 +1107,90 @@ justify-content: space-between;
   margin-top: 4px;
 }
 
+.admin-task-gateway {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 22px;
+}
+.admin-task-gateway h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.admin-task-gateway-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.project-directory {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.project-directory-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.project-directory-card h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.project-directory-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+.project-directory-footer strong {
+  font-size: 20px;
+}
+.employee-project-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.employee-project-card:hover,
+.employee-project-card.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+.employee-project-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.kanban-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+.kanban-card {
+  user-select: none;
+}
+
 .error {
   color: var(--danger); font-size: 13px; padding: 10px 14px;
   background: var(--danger-soft); border-radius: var(--r);
@@ -1150,6 +1234,13 @@ justify-content: space-between;
   .dashboard { grid-template-columns: 1fr; }
   .details-grid { grid-template-columns: 1fr; }
   .details-header { flex-direction: column; }
+  .admin-task-gateway {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .admin-task-gateway-actions {
+    flex-direction: column;
+  }
   .employees-layout { grid-template-columns: 1fr; }
   .manage-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }

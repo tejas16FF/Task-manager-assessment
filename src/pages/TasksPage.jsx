@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 
 import TaskForm from "../components/TaskForm";
 import TaskList from "../components/TaskList";
@@ -262,6 +262,48 @@ function TasksPage() {
 
       {isAdmin && <TaskForm />}
 
+      {isAdmin && (
+        <div className="admin-task-gateway">
+          <div>
+            <h3>Task access is organized by details pages</h3>
+            <p className="muted">
+              Open Projects to review project tasks, or Employees to review a
+              member's assigned projects and tasks.
+            </p>
+          </div>
+
+          <div className="admin-task-gateway-actions">
+            <Link className="btn btn-primary" to="/projects">
+              Projects
+            </Link>
+            <Link className="btn btn-secondary" to="/employees">
+              Employees
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {isAdmin && (
+        <>
+          {error && (
+            <p className="error">
+              {error}
+            </p>
+          )}
+
+          {loading && (
+            <p className="muted">
+              Loading tasks...
+            </p>
+          )}
+        </>
+      )}
+
+      {isAdmin && null}
+
+      {!isAdmin && (
+        <>
+
       <div className="dashboard">
         <div className="dashboard-item">
           <span>
@@ -489,6 +531,8 @@ function TasksPage() {
           tasks={filteredTasks}
           isAdmin={isAdmin}
         />
+      )}
+        </>
       )}
     </>
   );

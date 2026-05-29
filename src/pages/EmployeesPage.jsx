@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../utils/api";
 
 function EmployeesPage() {
@@ -20,6 +20,11 @@ function EmployeesPage() {
 
   const [loading, setLoading] =
     useState(false);
+
+  const [
+    selectedProjectName,
+    setSelectedProjectName,
+  ] = useState("");
 
   useEffect(() => {
     fetchEmployees();
@@ -60,12 +65,26 @@ function EmployeesPage() {
       setSelectedEmployee(
         response.data.user
       );
+
+      setSelectedProjectName("");
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
   }
+
+  const selectedProjectTasks = useMemo(() => {
+    if (!selectedProjectName) {
+      return [];
+    }
+
+    return (employeeStats?.tasks || []).filter(
+      (task) =>
+        (task.project || "General") ===
+        selectedProjectName
+    );
+  }, [employeeStats, selectedProjectName]);
 
   return (
     <div className="employees-page">
@@ -364,7 +383,7 @@ function EmployeesPage() {
                 </div>
               </div>
 
-              {/* TASKS */}
+              {/* PROJECTS */}
 
               <div
                 style={{
@@ -387,28 +406,112 @@ function EmployeesPage() {
                       "20px",
                   }}
                 >
-                  Assigned Tasks
+                  Assigned Projects
                 </h3>
 
                 <div
                   style={{
                     display:
-                      "flex",
+                      "grid",
 
-                    flexDirection:
-                      "column",
+                    gridTemplateColumns:
+                      "repeat(auto-fit,minmax(180px,1fr))",
 
-                    gap: "16px",
+                    gap: "12px",
                   }}
                 >
-                  {employeeStats?.tasks?.map(
+                  {employeeStats?.projects?.map(
                     (
-                      task
+                      project
                     ) => (
-                      <div
+                      <button
                         key={
-                          task._id
+                          project._id ||
+                          project.name
                         }
+                        className={`employee-project-card${
+                          selectedProjectName ===
+                          project.name
+                            ? " active"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setSelectedProjectName(
+                            project.name
+                          )
+                        }
+                      >
+                        <strong>
+                          {
+                            project.name
+                          }
+                        </strong>
+
+                        <span>
+                          {
+                            (employeeStats?.tasks || [])
+                              .filter(
+                                (task) =>
+                                  (task.project ||
+                                    "General") ===
+                                  project.name
+                              ).length
+                          }
+                          {" "}
+                          tasks
+                        </span>
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* TASKS */}
+
+              {selectedProjectName && (
+                <div
+                  style={{
+                    background:
+                      "var(--surface)",
+
+                    border:
+                      "1px solid var(--border)",
+
+                    borderRadius:
+                      "24px",
+
+                    padding:
+                      "24px",
+                  }}
+                >
+                  <h3
+                    style={{
+                      marginBottom:
+                        "20px",
+                    }}
+                  >
+                    {selectedProjectName} Tasks
+                  </h3>
+
+                  <div
+                    style={{
+                      display:
+                        "flex",
+
+                      flexDirection:
+                        "column",
+
+                      gap: "16px",
+                    }}
+                  >
+                    {selectedProjectTasks.map(
+                      (
+                        task
+                      ) => (
+                        <div
+                          key={
+                            task._id
+                          }
                         style={{
                           padding:
                             "20px",
@@ -420,11 +523,29 @@ function EmployeesPage() {
                             "20px",
                         }}
                       >
-                        <h4>
-                          {
-                            task.title
-                          }
-                        </h4>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems:
+                              "flex-start",
+                            justifyContent:
+                              "space-between",
+                            gap: "12px",
+                          }}
+                        >
+                          <h4>
+                            {
+                              task.title
+                            }
+                          </h4>
+
+                          <Link
+                            className="btn btn-secondary btn-sm"
+                            to={`/tasks/${task._id}`}
+                          >
+                            Details
+                          </Link>
+                        </div>
 
                         <div
                           style={{
@@ -458,87 +579,19 @@ function EmployeesPage() {
                           </span>
                         </div>
                       </div>
-                    )
-                  )}
+                      )
+                    )}
+
+                    {selectedProjectTasks.length ===
+                      0 && (
+                      <p className="muted">
+                        No tasks assigned in this
+                        project.
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-
-              {/* PROJECTS */}
-
-              <div
-                style={{
-                  background:
-                    "var(--surface)",
-
-                  border:
-                    "1px solid var(--border)",
-
-                  borderRadius:
-                    "24px",
-
-                  padding:
-                    "24px",
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom:
-                      "20px",
-                  }}
-                >
-                  Projects
-                </h3>
-
-                <div
-                  style={{
-                    display:
-                      "flex",
-
-                    flexWrap:
-                      "wrap",
-
-                    gap: "12px",
-                  }}
-                >
-                  {employeeStats?.projects?.map(
-                    (
-                      project
-                    ) => (
-                      <div
-                        key={
-                          project._id
-                        }
-                        style={{
-                          padding:
-                            "12px 18px",
-
-                          borderRadius:
-                            "999px",
-
-                          background:
-                            "rgba(124,108,255,0.10)",
-
-                          border:
-                            "1px solid rgba(124,108,255,0.35)",
-
-                          color:
-                            "var(--text)",
-
-                          fontWeight:
-                            "600",
-
-                          boxShadow:
-                            "0 2px 8px rgba(124,108,255,0.08)",
-                        }}
-                      >
-                        {
-                          project.name
-                        }
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
+              )}
             </div>
           )}
         </div>

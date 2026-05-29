@@ -31,6 +31,13 @@ function TaskCard({
   const isCompleted =
     task.status === "completed";
 
+  const actionLabel =
+    task.status === "completed"
+      ? "Reopen Task"
+      : task.status === "in_progress"
+        ? "Complete Task"
+        : "Start Task";
+
   const dueDateLabel = task.dueDate
     ? new Date(
         task.dueDate
@@ -70,27 +77,6 @@ function TaskCard({
   return (
     <>
       <div className={cardClass}>
-        {!isAdmin && (
-          <div className="task-check-col">
-            <input
-              type="checkbox"
-              className="task-checkbox"
-              checked={isCompleted}
-              onChange={() =>
-                toggleComplete(task._id)
-              }
-              style={{
-                width: 20,
-                height: 20,
-                accentColor:
-                  "var(--primary)",
-                cursor: "pointer",
-                flexShrink: 0,
-              }}
-            />
-          </div>
-        )}
-
         {/* Body */}
         <div className="task-body">
           <span className="task-project-tag">
@@ -249,6 +235,17 @@ function TaskCard({
           >
             Details
           </Link>
+
+          {!isAdmin && (
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() =>
+                toggleComplete(task._id)
+              }
+            >
+              {actionLabel}
+            </button>
+          )}
 
         {isAdmin && (
           <div

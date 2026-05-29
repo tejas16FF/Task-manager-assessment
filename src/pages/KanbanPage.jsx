@@ -51,7 +51,7 @@ function KanbanPage() {
   const handleDrop = async (status) => {
     setActiveColumn("");
 
-    if (!draggedTaskId || isAdmin) {
+    if (!draggedTaskId) {
       setDraggedTaskId("");
       return;
     }
@@ -68,6 +68,14 @@ function KanbanPage() {
     } finally {
       setDraggedTaskId("");
     }
+  };
+
+  const moveTask = async (task, status) => {
+    if (!task || task.status === status) {
+      return;
+    }
+
+    await moveTaskStatus(task._id, status);
   };
 
   return (
@@ -93,10 +101,8 @@ function KanbanPage() {
               activeColumn === column.id ? " drag-over" : ""
             }`}
             onDragOver={(event) => {
-              if (!isAdmin) {
-                event.preventDefault();
-                setActiveColumn(column.id);
-              }
+              event.preventDefault();
+              setActiveColumn(column.id);
             }}
             onDragLeave={() => setActiveColumn("")}
             onDrop={() => handleDrop(column.id)}
@@ -117,7 +123,7 @@ function KanbanPage() {
                 <article
                   key={task._id}
                   className="kanban-card"
-                  draggable={!isAdmin}
+                  draggable
                   onDragStart={() => setDraggedTaskId(task._id)}
                   onDragEnd={() => {
                     setDraggedTaskId("");
@@ -155,6 +161,24 @@ function KanbanPage() {
                     <Link className="btn btn-secondary btn-sm" to={`/tasks/${task._id}`}>
                       Details
                     </Link>
+                  </div>
+
+                  <div className="kanban-status-actions">
+                    {columns
+                      .filter((item) => item.id !== task.status)
+                      .map((item) => (
+                        <button
+                          key={item.id}
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => moveTask(task, item.id)}
+                        >
+                          {item.id === "pending"
+                            ? "Move to Pending"
+                            : item.id === "in_progress"
+                              ? "Start Task"
+                              : "Complete Task"}
+                        </button>
+                      ))}
                   </div>
                 </article>
               ))}

@@ -250,6 +250,21 @@ function ProjectSidebar({
 )}
 
         {isAdmin && (
+  <NavLink
+    className={({ isActive }) =>
+      `nav-item${isActive ? " active" : ""}`
+    }
+    to="/projects"
+    title="Projects"
+  >
+    <span className="nav-icon">P</span>
+    <span className="nav-label">
+      Projects
+    </span>
+  </NavLink>
+)}
+
+        {isAdmin && (
           <>
             <div
               className="sidebar-section-label"
