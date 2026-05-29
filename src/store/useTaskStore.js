@@ -167,5 +167,18 @@ toggleComplete: async (taskId) => {
     });
   }
 },
+moveTaskStatus: async (taskId, status) => {
+  try {
+    const response = await api.patch(`/tasks/${taskId}/status`, { status });
+
+    set((state) => ({
+      tasks: refreshTask(state.tasks, response.data),
+    }));
+  } catch (error) {
+    const message = getErrorMessage(error, "Unable to move task");
+    set({ error: message });
+    throw new Error(message, { cause: error });
+  }
+},
   clearError: () => set({ error: "" }),
 }));

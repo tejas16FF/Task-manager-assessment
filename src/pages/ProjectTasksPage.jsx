@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import FilterBar from "../components/FilterBar";
 import TaskForm from "../components/TaskForm";
 import TaskList from "../components/TaskList";
@@ -7,7 +7,7 @@ import { useTaskStore } from "../store/useTaskStore";
 import { getTaskProjectName } from "../utils/projectGroups";
 
 function ProjectTasksPage() {
-  const { isAdmin, tasks } = useOutletContext();
+  const { isAdmin, projects, tasks } = useOutletContext();
   const { projectName = "" } = useParams();
   const { error, loading } = useTaskStore();
   const [filter, setFilter] = useState("All");
@@ -21,6 +21,8 @@ function ProjectTasksPage() {
   const projectTasks = tasks.filter((task) => (
     getTaskProjectName(task) === decodedProjectName
   ));
+
+  const project = projects.find((item) => item.name === decodedProjectName);
 
   const filteredTasks = projectTasks.filter((task) => {
     const matchesFilter =
@@ -40,8 +42,19 @@ function ProjectTasksPage() {
   return (
     <>
       <div className="page-heading">
-        <h2>{decodedProjectName}</h2>
-        <p className="muted">Project tasks</p>
+        <div>
+          <h2>{decodedProjectName}</h2>
+          <p className="muted">Project tasks</p>
+        </div>
+
+        {project?._id && (
+          <Link
+            className="btn btn-secondary"
+            to={`/project-details/${project._id}`}
+          >
+            Details
+          </Link>
+        )}
       </div>
 
       {isAdmin && (

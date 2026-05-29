@@ -121,7 +121,20 @@ function TasksPage() {
           filtered =
             filtered.filter(
               (task) =>
-                !task.completed
+                task.status ===
+                "pending"
+            );
+        }
+
+        if (
+          statusFilter ===
+          "In Progress"
+        ) {
+          filtered =
+            filtered.filter(
+              (task) =>
+                task.status ===
+                "in_progress"
             );
         }
 
@@ -313,6 +326,9 @@ function TasksPage() {
           <option>All</option>
           <option>
             Pending
+          </option>
+          <option>
+            In Progress
           </option>
           <option>
             Completed

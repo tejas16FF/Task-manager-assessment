@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { useTaskStore } from "../store/useTaskStore";
 
@@ -69,25 +70,26 @@ function TaskCard({
   return (
     <>
       <div className={cardClass}>
-        {/* Checkbox */}
-        <div className="task-check-col">
-          <input
-            type="checkbox"
-            className="task-checkbox"
-            checked={isCompleted}
-            onChange={() =>
-              toggleComplete(task._id)
-            }
-            style={{
-              width: 20,
-              height: 20,
-              accentColor:
-                "var(--primary)",
-              cursor: "pointer",
-              flexShrink: 0,
-            }}
-          />
-        </div>
+        {!isAdmin && (
+          <div className="task-check-col">
+            <input
+              type="checkbox"
+              className="task-checkbox"
+              checked={isCompleted}
+              onChange={() =>
+                toggleComplete(task._id)
+              }
+              style={{
+                width: 20,
+                height: 20,
+                accentColor:
+                  "var(--primary)",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+            />
+          </div>
+        )}
 
         {/* Body */}
         <div className="task-body">
@@ -231,10 +233,25 @@ function TaskCard({
   )}
 </div>
 
-        {/* Actions */}
+        <div
+          className="task-actions"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            alignSelf: "flex-start",
+            marginTop: "10px",
+          }}
+        >
+          <Link
+            className="btn btn-secondary btn-sm"
+            to={`/tasks/${task._id}`}
+          >
+            Details
+          </Link>
+
         {isAdmin && (
           <div
-  className="task-actions"
   style={{
     display: "flex",
     flexDirection: "column",
@@ -268,6 +285,7 @@ function TaskCard({
             </button>
           </div>
         )}
+        </div>
       </div>
 
       {isEditing && (

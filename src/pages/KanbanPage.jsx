@@ -1,227 +1,173 @@
-  import { useMemo } from "react";
-  import { useTaskStore } from "../store/useTaskStore";
+import { useMemo, useState } from "react";
+import { Link, useOutletContext } from "react-router-dom";
+import { useTaskStore } from "../store/useTaskStore";
 
-  const columns = [
-    "pending",
-    "in_progress",
-    "completed",
-  ];
+const columns = [
+  {
+    id: "pending",
+    title: "Pending",
+    hint: "Ready to start",
+  },
+  {
+    id: "in_progress",
+    title: "In Progress",
+    hint: "Active work",
+  },
+  {
+    id: "completed",
+    title: "Completed",
+    hint: "Finished",
+  },
+];
 
-  function getPriorityColor(priority) {
-    if (!priority) return "#6b7280";
+function getPriorityClass(priority = "") {
+  return priority.toLowerCase() || "medium";
+}
 
-    const value = priority.toLowerCase();
+function getInitials(name = "") {
+  return (
+    name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U"
+  );
+}
 
-    if (value === "high") {
-      return "#ef4444";
+function KanbanPage() {
+  const { isAdmin } = useOutletContext();
+  const { error, moveTaskStatus, tasks } = useTaskStore();
+  const [draggedTaskId, setDraggedTaskId] = useState("");
+  const [activeColumn, setActiveColumn] = useState("");
+
+  const groupedTasks = useMemo(() => {
+    return columns.reduce((groups, column) => {
+      groups[column.id] = tasks.filter((task) => task.status === column.id);
+      return groups;
+    }, {});
+  }, [tasks]);
+
+  const handleDrop = async (status) => {
+    setActiveColumn("");
+
+    if (!draggedTaskId || isAdmin) {
+      setDraggedTaskId("");
+      return;
     }
 
-    if (value === "medium") {
-      return "#f59e0b";
+    const draggedTask = tasks.find((task) => task._id === draggedTaskId);
+
+    if (!draggedTask || draggedTask.status === status) {
+      setDraggedTaskId("");
+      return;
     }
 
-    if (value === "urgent") {
-      return "#dc2626";
+    try {
+      await moveTaskStatus(draggedTaskId, status);
+    } finally {
+      setDraggedTaskId("");
     }
+  };
 
-    return "#10b981";
-  }
-
-  function formatColumnTitle(column) {
-    if (column === "pending") return "Pending";
-    if (column === "in_progress") return "In Progress";
-    if (column === "completed") return "Completed";
-
-    return column;
-  }
-
-  function KanbanPage() {
-    const { tasks, toggleComplete } = useTaskStore();
-
-    const groupedTasks = useMemo(() => {
-      return {
-        pending: tasks.filter(
-          (task) => task.status === "pending"
-        ),
-
-        in_progress: tasks.filter(
-          (task) => task.status === "in_progress"
-        ),
-
-        completed: tasks.filter(
-          (task) => task.status === "completed"
-        ),
-      };
-    }, [tasks]);
-
-    return (
-      <div className="kanban-page">
-        <h2
-          style={{
-            marginBottom: "20px",
-          }}
-        >
-          Kanban Board
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(3, 1fr)",
-            gap: "20px",
-          }}
-        >
-          {columns.map((column) => (
-            <div
-              key={column}
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                borderRadius: "18px",
-                padding: "18px",
-                minHeight: "600px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "18px",
-                }}
-              >
-                <h3>
-                  {formatColumnTitle(column)}
-                </h3>
-
-                <span
-                  style={{
-                    background: "var(--surface-2)",
-                    padding: "4px 10px",
-                    borderRadius: "999px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                  }}
-                >
-                  {groupedTasks[column]?.length}
-                </span>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "14px",
-                }}
-              >
-                {(groupedTasks[column] || []).map(
-                  (task) => (
-                    <div
-                      key={task._id}
-                      style={{
-                        background: "var(--surface-2)",
-                        border:
-                          "1px solid var(--border)",
-                        borderRadius: "16px",
-                        padding: "16px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent:
-                            "space-between",
-                          alignItems: "start",
-                          gap: "10px",
-                        }}
-                      >
-                        <strong
-                          style={{
-                            fontSize: "15px",
-                          }}
-                        >
-                          {task.title}
-                        </strong>
-
-                        <span
-                          style={{
-                            background:
-                              getPriorityColor(
-                                task.priority
-                              ),
-                            color: "white",
-                            fontSize: "11px",
-                            padding: "4px 8px",
-                            borderRadius: "999px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {task.priority}
-                        </span>
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: "12px",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "6px",
-                          fontSize: "13px",
-                          color: "var(--muted)",
-                        }}
-                      >
-                        <span>
-                          👤{" "}
-                          {task.assignedTo?.name ||
-                            "Unassigned"}
-                        </span>
-
-                        <span>
-                          📁{" "}
-                          {task.project ||
-                            "General"}
-                        </span>
-
-                        {task.dueDate && (
-                          <span>
-                            📅{" "}
-                            {new Date(
-                              task.dueDate
-                            ).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: "16px",
-                        }}
-                      >
-                        <button
-                          className="btn btn-primary"
-                  onClick={() =>
-    toggleComplete(task._id)
-  }
-                        >
-                          {task.status ===
-                          "completed"
-                            ? "Reopen Task"
-                            : task.status ===
-                              "pending"
-                            ? "Start Task"
-                            : "Complete Task"}
-                        </button>
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-          ))}
+  return (
+    <div className="kanban-page">
+      <div className="page-heading kanban-heading">
+        <div>
+          <h2>Kanban Board</h2>
+          <p className="muted">
+            {isAdmin
+              ? "Review work across the team. Employees move their own tasks."
+              : "Drag tasks between columns as your work changes."}
+          </p>
         </div>
       </div>
-    );
-  }
 
-  export default KanbanPage;
+      {error && <p className="error">{error}</p>}
+
+      <div className="kanban-board">
+        {columns.map((column) => (
+          <section
+            key={column.id}
+            className={`kanban-col${
+              activeColumn === column.id ? " drag-over" : ""
+            }`}
+            onDragOver={(event) => {
+              if (!isAdmin) {
+                event.preventDefault();
+                setActiveColumn(column.id);
+              }
+            }}
+            onDragLeave={() => setActiveColumn("")}
+            onDrop={() => handleDrop(column.id)}
+          >
+            <div className="kanban-col-header">
+              <div>
+                <h3 className="kanban-col-title">{column.title}</h3>
+                <p className="kanban-col-hint">{column.hint}</p>
+              </div>
+
+              <span className="kanban-col-count">
+                {groupedTasks[column.id]?.length || 0}
+              </span>
+            </div>
+
+            <div className="kanban-cards">
+              {(groupedTasks[column.id] || []).map((task) => (
+                <article
+                  key={task._id}
+                  className="kanban-card"
+                  draggable={!isAdmin}
+                  onDragStart={() => setDraggedTaskId(task._id)}
+                  onDragEnd={() => {
+                    setDraggedTaskId("");
+                    setActiveColumn("");
+                  }}
+                >
+                  <div className="kanban-card-top">
+                    <h4 className="kanban-card-title">{task.title}</h4>
+                    <span className={`badge ${getPriorityClass(task.priority)}`}>
+                      {task.priority}
+                    </span>
+                  </div>
+
+                  <div className="kanban-card-meta">
+                    <span className="kanban-assignee">
+                      <span className="kanban-avatar">
+                        {getInitials(task.assignedTo?.name)}
+                      </span>
+                      {task.assignedTo?.name || "Unassigned"}
+                    </span>
+
+                    <span className="kanban-project">{task.project || "General"}</span>
+                  </div>
+
+                  <div className="kanban-card-footer">
+                    <span>
+                      {task.dueDate
+                        ? new Date(task.dueDate).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                          })
+                        : "No due date"}
+                    </span>
+
+                    <Link className="btn btn-secondary btn-sm" to={`/tasks/${task._id}`}>
+                      Details
+                    </Link>
+                  </div>
+                </article>
+              ))}
+
+              {(groupedTasks[column.id] || []).length === 0 && (
+                <div className="kanban-empty">Drop tasks here</div>
+              )}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default KanbanPage;

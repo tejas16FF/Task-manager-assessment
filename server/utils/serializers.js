@@ -91,7 +91,10 @@ function serializeTask(task) {
     comments: data.comments || [],
     attachments: data.attachments || [],
     position: data.position || 0,
+    assignedAt: data.assignedAt,
+    startedAt: data.startedAt,
     completedAt: data.completedAt,
+    totalTimeTaken: data.totalTimeTaken || 0,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
   };

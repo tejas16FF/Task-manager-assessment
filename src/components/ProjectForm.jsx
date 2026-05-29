@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTaskStore } from "../store/useTaskStore";
 
 function ProjectForm() {
@@ -185,6 +186,15 @@ function ProjectForm() {
                 />
 
                 {project.name}
+
+                {project._id && (
+                  <Link
+                    className="btn btn-secondary btn-sm"
+                    to={`/project-details/${project._id}`}
+                  >
+                    Details
+                  </Link>
+                )}
               </div>
             )
           )}

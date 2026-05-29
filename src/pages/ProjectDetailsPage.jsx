@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { api } from "../utils/api";
 
 function ProjectDetailsPage() {
@@ -36,37 +36,47 @@ function ProjectDetailsPage() {
 
   return (
     <div className="project-details-page">
-      <h2>{projectData.project.name}</h2>
+      <div className="details-header">
+        <div>
+          <Link className="back-link" to="/tasks">
+            Back to tasks
+          </Link>
+          <h2>{projectData.project.name}</h2>
+          <p className="muted">Project details, members, and assigned work</p>
+        </div>
 
-      <p>
-        Progress:
-        {" "}
-        {projectData.stats.progress}%
-      </p>
+        <div className="project-progress-card">
+          <span>Progress</span>
+          <strong>{projectData.stats.progress}%</strong>
+          <div className="progress-bar-wrap">
+            <div
+              className="progress-bar-fill"
+              style={{
+                width: `${projectData.stats.progress}%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
 
-      <p>
-        Total Tasks:
-        {" "}
-        {projectData.stats.totalTasks}
-      </p>
-
-      <p>
-        Completed:
-        {" "}
-        {projectData.stats.completedTasks}
-      </p>
-
-      <p>
-        Pending:
-        {" "}
-        {projectData.stats.pendingTasks}
-      </p>
-
-      <p>
-        Overdue:
-        {" "}
-        {projectData.stats.overdueTasks}
-      </p>
+      <div className="project-details-stats">
+        <div className="dashboard-item">
+          <span>Total Tasks</span>
+          <strong>{projectData.stats.totalTasks}</strong>
+        </div>
+        <div className="dashboard-item">
+          <span>Completed</span>
+          <strong>{projectData.stats.completedTasks}</strong>
+        </div>
+        <div className="dashboard-item">
+          <span>Pending</span>
+          <strong>{projectData.stats.pendingTasks}</strong>
+        </div>
+        <div className="dashboard-item">
+          <span>Overdue</span>
+          <strong>{projectData.stats.overdueTasks}</strong>
+        </div>
+      </div>
 
       <h3 style={{ marginTop: "30px" }}>
         Members
@@ -82,11 +92,7 @@ function ProjectDetailsPage() {
         {projectData.members.map((member) => (
           <div
             key={member.user?._id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "10px",
-              padding: "12px",
-            }}
+            className="project-member-item"
           >
             <strong>{member.user?.name}</strong>
 
@@ -111,33 +117,36 @@ function ProjectDetailsPage() {
         {projectData.tasks.map((task) => (
           <div
             key={task._id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "10px",
-              padding: "12px",
-            }}
+            className="details-task-row"
           >
-            <strong>{task.title}</strong>
+            <div>
+              <strong>{task.title}</strong>
 
-            <p>
-              Assigned To:
-              {" "}
-              {task.assignedTo?.name || "Unassigned"}
-            </p>
+              <p>
+                Assigned To:
+                {" "}
+                {task.assignedTo?.name || "Unassigned"}
+              </p>
 
-            <p>
-              Priority:
-              {" "}
-              {task.priority}
-            </p>
+              <p>
+                Priority:
+                {" "}
+                {task.priority}
+              </p>
 
-            <p>
-              Status:
-              {" "}
-              {task.completed
-                ? "Completed"
-                : "Pending"}
-            </p>
+              <p>
+                Status:
+                {" "}
+                {(task.status || "pending").replace("_", " ")}
+              </p>
+            </div>
+
+            <Link
+              className="btn btn-secondary btn-sm"
+              to={`/tasks/${task._id}`}
+            >
+              Details
+            </Link>
           </div>
         ))}
       </div>

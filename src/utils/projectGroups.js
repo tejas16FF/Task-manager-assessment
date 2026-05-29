@@ -19,9 +19,11 @@ export function buildProjectGroups(tasks) {
 
 export function buildProjectGroupsWithProjects(tasks, projects) {
   const groups = new Map();
+  const projectMeta = new Map();
 
   projects.forEach((project) => {
     groups.set(project.name, []);
+    projectMeta.set(project.name, project);
   });
 
   tasks.forEach((task) => {
@@ -32,7 +34,11 @@ export function buildProjectGroupsWithProjects(tasks, projects) {
   });
 
   return Array.from(groups.entries())
-    .map(([name, projectTasks]) => ({ name, tasks: projectTasks }))
+    .map(([name, projectTasks]) => ({
+      ...(projectMeta.get(name) || {}),
+      name,
+      tasks: projectTasks,
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 

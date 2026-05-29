@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../utils/api";
 
 function EmployeesPage() {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [employees, setEmployees] =
     useState([]);
 
@@ -21,6 +24,12 @@ function EmployeesPage() {
   useEffect(() => {
     fetchEmployees();
   }, []);
+
+  useEffect(() => {
+    if (id) {
+      fetchEmployeeStats(id);
+    }
+  }, [id]);
 
   async function fetchEmployees() {
     try {
@@ -120,15 +129,7 @@ function EmployeesPage() {
                   key={
                     employee._id
                   }
-                  onClick={() =>
-                    fetchEmployeeStats(
-                      employee._id
-                    )
-                  }
                   style={{
-                    cursor:
-                      "pointer",
-
                     padding:
                       "18px",
 
@@ -202,7 +203,12 @@ function EmployeesPage() {
                         .toUpperCase()}
                     </div>
 
-                    <div>
+                    <div
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                      }}
+                    >
                       <h4
                         style={{
                           margin:
@@ -226,6 +232,17 @@ function EmployeesPage() {
                         }
                       </p>
                     </div>
+
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() =>
+                        navigate(
+                          `/employees/${employee._id}`
+                        )
+                      }
+                    >
+                      Details
+                    </button>
                   </div>
                 </div>
               )

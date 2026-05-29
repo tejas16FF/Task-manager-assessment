@@ -226,6 +226,11 @@ const taskSchema =
       completedAt: {
         type: Date,
       },
+
+      totalTimeTaken: {
+        type: Number,
+        default: 0,
+      },
     },
     {
       timestamps: true,
