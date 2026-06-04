@@ -12,16 +12,23 @@ function ProductivityBarChart({
   data,
   title = "Cumulative Progress",
 }) {
-  let runningTotal = 0;
+  const ogiveData = (data || []).reduce(
+    (items, item) => {
+      const previous =
+        items.length === 0
+          ? 0
+          : items[items.length - 1].cumulative;
 
-  const ogiveData = (data || []).map((item) => {
-    runningTotal += item.value || 0;
-
-    return {
-      name: item.name,
-      cumulative: runningTotal,
-    };
-  });
+      return [
+        ...items,
+        {
+          name: item.name,
+          cumulative: previous + (item.value || 0),
+        },
+      ];
+    },
+    []
+  );
 
   return (
     <div

@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useOutletContext } from "react-router-dom";
 import AnalyticsCards from "../components/AnalyticsCards";
-import ProductivityBarChart from "../components/ProductivityBarChart";
+import {
+  CompletionTrendChart,
+  EfficiencyBarChart,
+} from "../components/EfficiencyCharts";
 import TaskPieChart from "../components/TaskPieChart";
 import { api } from "../utils/api";
 
@@ -27,28 +30,6 @@ function AnalyticsPage() {
       fetchAnalytics();
     }
   }, [isAdmin]);
-
-  const chartData = useMemo(() => {
-    if (!analytics) {
-      return [];
-    }
-
-    if (mode === "project") {
-      return (analytics.projectStats || []).map((project) => ({
-        name: project.name,
-        value: project.completed,
-      }));
-    }
-
-    if (mode === "employee") {
-      return (analytics.employeeStats || []).map((employee) => ({
-        name: employee.name,
-        value: employee.completed,
-      }));
-    }
-
-    return [];
-  }, [analytics, mode]);
 
   if (!isAdmin) {
     return <Navigate to="/tasks" replace />;
@@ -80,7 +61,7 @@ function AnalyticsPage() {
             onClick={() => setMode("project")}
           >
             <strong>Project Analytics</strong>
-            <span>Compare completed work across projects.</span>
+            <span>Compare completion volume and average delivery time.</span>
           </button>
 
           <button
@@ -88,7 +69,7 @@ function AnalyticsPage() {
             onClick={() => setMode("employee")}
           >
             <strong>Employee Analytics</strong>
-            <span>Compare completed work across employees.</span>
+            <span>Rank efficiency from task start to completion.</span>
           </button>
         </div>
       ) : (
@@ -107,24 +88,27 @@ function AnalyticsPage() {
 
           <AnalyticsCards analytics={analytics} />
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "1fr 1fr",
-              gap: 24,
-              marginTop: 30,
-            }}
-          >
+          <div className="analytics-grid">
             <TaskPieChart analytics={analytics} />
 
-            <ProductivityBarChart
-              data={chartData}
+            <EfficiencyBarChart
+              data={
+                mode === "project"
+                  ? analytics.projectStats
+                  : analytics.employeeStats
+              }
               title={
                 mode === "project"
-                  ? "Project Ogive"
-                  : "Employee Ogive"
+                  ? "Project Efficiency"
+                  : "Employee Efficiency"
               }
+              subtitle="Lower average hours means faster task delivery. Score is compared with the team baseline."
+            />
+
+            <CompletionTrendChart
+              data={analytics.completionTrend}
+              title="Completion Time Trend"
+              subtitle="Average hours are calculated from started time to completed time only."
             />
           </div>
         </>

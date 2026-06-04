@@ -6,22 +6,28 @@ function ActivityPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchActivities();
+    let cancelled = false;
+
+    Promise.resolve()
+      .then(() => api.get("/activities"))
+      .then((response) => {
+        if (!cancelled) {
+          setActivities(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  async function fetchActivities() {
-    try {
-      setLoading(true);
-
-      const response = await api.get("/activities");
-
-      setActivities(response.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   if (loading) {
     return <p>Loading activities...</p>;

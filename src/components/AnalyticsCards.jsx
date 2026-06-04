@@ -29,18 +29,15 @@ function AnalyticsCards({
       value:
         analytics.inProgressTasks || 0,
     },
+
+    {
+      title: "Avg Time",
+      value: `${analytics.averageCompletionHours || 0}h`,
+    },
   ];
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns:
-          "repeat(4,1fr)",
-        gap: 20,
-        marginTop: 30,
-      }}
-    >
+    <div className="analytics-card-grid">
       {cards.map((card) => (
         <div
           key={card.title}

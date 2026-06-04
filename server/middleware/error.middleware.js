@@ -5,6 +5,8 @@ function notFoundHandler(req, res, next) {
 }
 
 function errorHandler(error, req, res, next) {
+  void next;
+
   const statusCode = error.statusCode || 500;
   const isProduction = process.env.NODE_ENV === "production";
 

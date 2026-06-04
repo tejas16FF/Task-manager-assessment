@@ -6,6 +6,88 @@ const AppError = require("../utils/AppError");
 const { serializeUser } = require("../utils/serializers");
 const { normalizeRole } = require("./auth.service");
 
+function getTaskDurationSeconds(task) {
+  if (task.totalTimeTaken && task.totalTimeTaken > 0) {
+    return task.totalTimeTaken;
+  }
+
+  if (!task.startedAt || !task.completedAt) {
+    return 0;
+  }
+
+  const duration = Math.floor(
+    (new Date(task.completedAt) - new Date(task.startedAt)) / 1000
+  );
+
+  return duration > 0 ? duration : 0;
+}
+
+function round(value, digits = 1) {
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
+}
+
+function formatDateKey(value) {
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+function buildTimedSummary(tasks, baselineSeconds = 0) {
+  const timedTasks = tasks.filter(
+    (task) => task.completed && getTaskDurationSeconds(task) > 0
+  );
+
+  const totalSeconds = timedTasks.reduce(
+    (sum, task) => sum + getTaskDurationSeconds(task),
+    0
+  );
+
+  const averageSeconds =
+    timedTasks.length === 0 ? 0 : totalSeconds / timedTasks.length;
+
+  return {
+    timedTasks: timedTasks.length,
+    averageHours: round(averageSeconds / 3600),
+    totalHours: round(totalSeconds / 3600),
+    efficiencyScore:
+      averageSeconds && baselineSeconds
+        ? Math.min(200, Math.round((baselineSeconds / averageSeconds) * 100))
+        : 0,
+  };
+}
+
+function buildCompletionTrend(tasks) {
+  const trendMap = {};
+
+  tasks.forEach((task) => {
+    const durationSeconds = getTaskDurationSeconds(task);
+
+    if (!task.completed || !task.completedAt || durationSeconds <= 0) {
+      return;
+    }
+
+    const dateKey = formatDateKey(task.completedAt);
+
+    if (!trendMap[dateKey]) {
+      trendMap[dateKey] = {
+        date: dateKey,
+        completed: 0,
+        totalSeconds: 0,
+      };
+    }
+
+    trendMap[dateKey].completed += 1;
+    trendMap[dateKey].totalSeconds += durationSeconds;
+  });
+
+  return Object.values(trendMap)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((point) => ({
+      date: point.date,
+      completed: point.completed,
+      averageHours: round(point.totalSeconds / point.completed / 3600),
+    }));
+}
+
 async function getUsers() {
   const users = await User.find().select("-password").sort({ createdAt: -1 });
   return users.map(serializeUser);
@@ -63,6 +145,22 @@ async function getEmployeeStats(userId) {
     assignedTo: userId,
   });
 
+  const allTimedCompletedTasks = await Task.find({
+    status: "completed",
+  }).select("startedAt completedAt totalTimeTaken completed");
+
+  const timedCompletedTasks = allTimedCompletedTasks.filter(
+    (task) => getTaskDurationSeconds(task) > 0
+  );
+
+  const baselineSeconds =
+    timedCompletedTasks.length === 0
+      ? 0
+      : timedCompletedTasks.reduce(
+          (sum, task) => sum + getTaskDurationSeconds(task),
+          0
+        ) / timedCompletedTasks.length;
+
   const completedTasks = tasks.filter(
     (task) => task.completed
   ).length;
@@ -73,6 +171,46 @@ async function getEmployeeStats(userId) {
     "members.user": userId,
   });
 
+  const projectAnalyticsMap = {};
+
+  tasks.forEach((task) => {
+    const projectName = task.project || "General";
+
+    if (!projectAnalyticsMap[projectName]) {
+      projectAnalyticsMap[projectName] = {
+        name: projectName,
+        totalTasks: 0,
+        completedTasks: 0,
+        tasks: [],
+      };
+    }
+
+    projectAnalyticsMap[projectName].totalTasks += 1;
+    projectAnalyticsMap[projectName].tasks.push(task);
+
+    if (task.completed) {
+      projectAnalyticsMap[projectName].completedTasks += 1;
+    }
+  });
+
+  const projectAnalytics = Object.values(projectAnalyticsMap).map((project) => {
+    const timedSummary = buildTimedSummary(project.tasks, baselineSeconds);
+
+    return {
+      name: project.name,
+      totalTasks: project.totalTasks,
+      completedTasks: project.completedTasks,
+      completionRate:
+        project.totalTasks === 0
+          ? 0
+          : Math.round((project.completedTasks / project.totalTasks) * 100),
+      ...timedSummary,
+      trend: buildCompletionTrend(project.tasks),
+    };
+  });
+
+  const timedSummary = buildTimedSummary(tasks, baselineSeconds);
+
   return {
     user: serializeUser(user),
     stats: {
@@ -80,6 +218,7 @@ async function getEmployeeStats(userId) {
       completedTasks,
       pendingTasks,
       totalProjects: projects.length,
+      ...timedSummary,
       completionRate:
         tasks.length === 0
           ? 0
@@ -88,6 +227,8 @@ async function getEmployeeStats(userId) {
             ),
     },
     projects,
+    projectAnalytics,
+    completionTrend: buildCompletionTrend(tasks),
     tasks,
   };
 }
