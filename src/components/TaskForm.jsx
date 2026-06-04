@@ -23,6 +23,9 @@ function TaskForm({
   const [priority, setPriority] =
     useState("Low");
 
+  const [difficulty, setDifficulty] =
+    useState("Normal");
+
   const [dueDate, setDueDate] =
     useState("");
 
@@ -145,6 +148,8 @@ function TaskForm({
 
         priority,
 
+        difficulty,
+
         dueDate:
           dueDate || null,
 
@@ -166,6 +171,8 @@ function TaskForm({
       );
 
       setPriority("Low");
+
+      setDifficulty("Normal");
 
       setDueDate("");
 
@@ -264,6 +271,32 @@ function TaskForm({
 
             <option>
               High
+            </option>
+          </select>
+
+          <select
+            value={difficulty}
+            onChange={(e) =>
+              setDifficulty(
+                e.target.value
+              )
+            }
+            title="Difficulty"
+          >
+            <option>
+              Easy
+            </option>
+
+            <option>
+              Normal
+            </option>
+
+            <option>
+              Hard
+            </option>
+
+            <option>
+              Expert
             </option>
           </select>
 

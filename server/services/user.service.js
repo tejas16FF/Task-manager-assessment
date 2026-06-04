@@ -22,6 +22,23 @@ function getTaskDurationSeconds(task) {
   return duration > 0 ? duration : 0;
 }
 
+function getDifficultyWeight(task) {
+  const weights = {
+    Easy: 0.75,
+    Normal: 1,
+    Hard: 1.5,
+    Expert: 2,
+  };
+
+  return weights[task.difficulty] || weights.Normal;
+}
+
+function getDifficultyAdjustedSeconds(task) {
+  const duration = getTaskDurationSeconds(task);
+
+  return duration > 0 ? duration / getDifficultyWeight(task) : 0;
+}
+
 function round(value, digits = 1) {
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
@@ -40,17 +57,27 @@ function buildTimedSummary(tasks, baselineSeconds = 0) {
     (sum, task) => sum + getTaskDurationSeconds(task),
     0
   );
+  const adjustedSeconds = timedTasks.reduce(
+    (sum, task) => sum + getDifficultyAdjustedSeconds(task),
+    0
+  );
 
   const averageSeconds =
     timedTasks.length === 0 ? 0 : totalSeconds / timedTasks.length;
+  const adjustedAverageSeconds =
+    timedTasks.length === 0 ? 0 : adjustedSeconds / timedTasks.length;
 
   return {
     timedTasks: timedTasks.length,
     averageHours: round(averageSeconds / 3600),
+    difficultyAdjustedHours: round(adjustedAverageSeconds / 3600),
     totalHours: round(totalSeconds / 3600),
     efficiencyScore:
-      averageSeconds && baselineSeconds
-        ? Math.min(200, Math.round((baselineSeconds / averageSeconds) * 100))
+      adjustedAverageSeconds && baselineSeconds
+        ? Math.min(
+            200,
+            Math.round((baselineSeconds / adjustedAverageSeconds) * 100)
+          )
         : 0,
   };
 }
@@ -157,7 +184,7 @@ async function getEmployeeStats(userId) {
     timedCompletedTasks.length === 0
       ? 0
       : timedCompletedTasks.reduce(
-          (sum, task) => sum + getTaskDurationSeconds(task),
+          (sum, task) => sum + getDifficultyAdjustedSeconds(task),
           0
         ) / timedCompletedTasks.length;
 

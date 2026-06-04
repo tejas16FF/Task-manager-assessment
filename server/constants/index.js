@@ -29,6 +29,13 @@ const TASK_PRIORITY = {
   URGENT: "Urgent",
 };
 
+const TASK_DIFFICULTY = {
+  EASY: "Easy",
+  NORMAL: "Normal",
+  HARD: "Hard",
+  EXPERT: "Expert",
+};
+
 const ACTIVITY_ACTIONS = {
   PROJECT_CREATED: "project_created",
   PROJECT_UPDATED: "project_updated",
@@ -54,6 +61,7 @@ module.exports = {
   LEGACY_USER_ROLES,
   NOTIFICATION_TYPES,
   PROJECT_STATUS,
+  TASK_DIFFICULTY,
   TASK_PRIORITY,
   TASK_STATUS,
   USER_ROLES,

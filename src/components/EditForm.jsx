@@ -26,6 +26,11 @@ function EditForm({
   const [priority, setPriority] =
     useState(task.priority);
 
+  const [difficulty, setDifficulty] =
+    useState(
+      task.difficulty || "Normal"
+    );
+
   const [dueDate, setDueDate] =
     useState(
       task.dueDate || ""
@@ -90,6 +95,8 @@ function EditForm({
         "General",
 
       priority,
+
+      difficulty,
 
       dueDate,
 
@@ -198,6 +205,37 @@ function EditForm({
 
             <option>
               High
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label className="input-label">
+            Difficulty
+          </label>
+
+          <select
+            value={difficulty}
+            onChange={(e) =>
+              setDifficulty(
+                e.target.value
+              )
+            }
+          >
+            <option>
+              Easy
+            </option>
+
+            <option>
+              Normal
+            </option>
+
+            <option>
+              Hard
+            </option>
+
+            <option>
+              Expert
             </option>
           </select>
         </div>

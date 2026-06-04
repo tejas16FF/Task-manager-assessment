@@ -26,6 +26,23 @@ function getTaskDurationSeconds(task) {
   return duration > 0 ? duration : 0;
 }
 
+function getDifficultyWeight(task) {
+  const weights = {
+    Easy: 0.75,
+    Normal: 1,
+    Hard: 1.5,
+    Expert: 2,
+  };
+
+  return weights[task.difficulty] || weights.Normal;
+}
+
+function getDifficultyAdjustedSeconds(task) {
+  const duration = getTaskDurationSeconds(task);
+
+  return duration > 0 ? duration / getDifficultyWeight(task) : 0;
+}
+
 function round(value, digits = 1) {
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
@@ -88,11 +105,19 @@ router.get("/", async (req, res) => {
       (task) => task.status === "completed" && getTaskDurationSeconds(task) > 0
     );
 
-    const baselineSeconds =
+    const actualBaselineSeconds =
       completedWithTime.length === 0
         ? 0
         : completedWithTime.reduce(
             (sum, task) => sum + getTaskDurationSeconds(task),
+            0
+          ) / completedWithTime.length;
+
+    const baselineSeconds =
+      completedWithTime.length === 0
+        ? 0
+        : completedWithTime.reduce(
+            (sum, task) => sum + getDifficultyAdjustedSeconds(task),
             0
           ) / completedWithTime.length;
 
@@ -119,6 +144,7 @@ router.get("/", async (req, res) => {
           completed: 0,
           timedTasks: 0,
           totalSeconds: 0,
+          difficultyAdjustedSeconds: 0,
         };
       }
 
@@ -137,6 +163,8 @@ router.get("/", async (req, res) => {
         if (durationSeconds > 0) {
           employeeMap[employee].timedTasks += 1;
           employeeMap[employee].totalSeconds += durationSeconds;
+          employeeMap[employee].difficultyAdjustedSeconds +=
+            getDifficultyAdjustedSeconds(task);
         }
       }
 
@@ -151,6 +179,7 @@ router.get("/", async (req, res) => {
           completed: 0,
           timedTasks: 0,
           totalSeconds: 0,
+          difficultyAdjustedSeconds: 0,
         };
       }
 
@@ -164,6 +193,8 @@ router.get("/", async (req, res) => {
         if (durationSeconds > 0) {
           projectMap[project].timedTasks += 1;
           projectMap[project].totalSeconds += durationSeconds;
+          projectMap[project].difficultyAdjustedSeconds +=
+            getDifficultyAdjustedSeconds(task);
         }
       }
 
@@ -196,12 +227,17 @@ router.get("/", async (req, res) => {
             employee.timedTasks === 0
               ? 0
               : employee.totalSeconds / employee.timedTasks;
+          const adjustedAverageSeconds =
+            employee.timedTasks === 0
+              ? 0
+              : employee.difficultyAdjustedSeconds / employee.timedTasks;
 
           return {
             ...employee,
             averageHours: round(averageSeconds / 3600),
+            difficultyAdjustedHours: round(adjustedAverageSeconds / 3600),
             efficiencyScore: buildEfficiencyScore(
-              averageSeconds,
+              adjustedAverageSeconds,
               baselineSeconds
             ),
           };
@@ -217,12 +253,17 @@ router.get("/", async (req, res) => {
             project.timedTasks === 0
               ? 0
               : project.totalSeconds / project.timedTasks;
+          const adjustedAverageSeconds =
+            project.timedTasks === 0
+              ? 0
+              : project.difficultyAdjustedSeconds / project.timedTasks;
 
           return {
             ...project,
             averageHours: round(averageSeconds / 3600),
+            difficultyAdjustedHours: round(adjustedAverageSeconds / 3600),
             efficiencyScore: buildEfficiencyScore(
-              averageSeconds,
+              adjustedAverageSeconds,
               baselineSeconds
             ),
           };
@@ -243,7 +284,8 @@ router.get("/", async (req, res) => {
       pendingTasks,
       inProgressTasks,
       timedCompletedTasks: completedWithTime.length,
-      averageCompletionHours: round(baselineSeconds / 3600),
+      averageCompletionHours: round(actualBaselineSeconds / 3600),
+      difficultyAdjustedHours: round(baselineSeconds / 3600),
       employeeStats,
       projectStats,
       completionTrend,

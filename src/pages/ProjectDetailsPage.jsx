@@ -140,12 +140,18 @@ function ProjectDetailsPage() {
 
           <div className="project-analytics-strip">
             <div>
-              <span>Timed completions</span>
-              <strong>{projectData.analytics?.timedCompletedTasks || 0}</strong>
-            </div>
-            <div>
-              <span>In progress</span>
-              <strong>
+            <span>Timed completions</span>
+            <strong>{projectData.analytics?.timedCompletedTasks || 0}</strong>
+          </div>
+          <div>
+            <span>Adjusted avg</span>
+            <strong>
+              {formatHours(projectData.analytics?.difficultyAdjustedHours)}
+            </strong>
+          </div>
+          <div>
+            <span>In progress</span>
+            <strong>
                 {projectData.analytics?.statusBreakdown?.inProgress || 0}
               </strong>
             </div>
@@ -165,7 +171,7 @@ function ProjectDetailsPage() {
             <EfficiencyBarChart
               data={projectData.analytics?.employeeStats}
               title="Employee Contribution"
-              subtitle="Average completion time for employees assigned in this project."
+              subtitle="Efficiency uses difficulty-adjusted completion time."
             />
           </div>
         </section>
@@ -226,6 +232,14 @@ function ProjectDetailsPage() {
                 {" "}
                 {task.priority}
               </p>
+
+              {isAdmin && (
+                <p>
+                  Difficulty:
+                  {" "}
+                  {task.difficulty || "Normal"}
+                </p>
+              )}
 
               <p>
                 Status:

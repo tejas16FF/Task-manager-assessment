@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { api, getErrorMessage } from "../utils/api";
 
 function formatDate(value) {
@@ -22,6 +22,7 @@ function formatStatus(status = "") {
 
 function TaskDetailsPage() {
   const { id } = useParams();
+  const { isAdmin } = useOutletContext();
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -97,6 +98,12 @@ function TaskDetailsPage() {
               <span>Priority</span>
               <strong>{task.priority}</strong>
             </div>
+            {isAdmin && (
+              <div>
+                <span>Difficulty</span>
+                <strong>{task.difficulty || "Normal"}</strong>
+              </div>
+            )}
             <div>
               <span>Due date</span>
               <strong>{formatDate(task.dueDate)}</strong>

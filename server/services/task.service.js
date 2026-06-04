@@ -1,6 +1,7 @@
 const {
   ACTIVITY_ACTIONS,
   NOTIFICATION_TYPES,
+  TASK_DIFFICULTY,
   TASK_STATUS,
   USER_ROLES,
 } = require("../constants");
@@ -23,6 +24,15 @@ const populateTaskUsers = [
   { path: "projectRef", select: "name key status progress" },
 ];
 
+function normalizeDifficulty(value) {
+  const normalized = Object.values(TASK_DIFFICULTY).find(
+    (difficulty) =>
+      difficulty.toLowerCase() === value?.toString().trim().toLowerCase()
+  );
+
+  return normalized || TASK_DIFFICULTY.NORMAL;
+}
+
 function normalizeTaskPayload(body) {
   const remarks = body.remarks ?? body.description ?? "";
   const project = body.project?.trim() || "General";
@@ -33,6 +43,7 @@ function normalizeTaskPayload(body) {
     remarks,
     description: remarks,
     priority: body.priority,
+    difficulty: normalizeDifficulty(body.difficulty),
     status: body.status,
     dueDate: body.dueDate || null,
     assignedTo: body.assignedTo || null,
@@ -78,7 +89,11 @@ async function getTasks(currentUser, filters = {}) {
     .populate(populateTaskUsers)
     .sort({ createdAt: -1 });
 
-  return tasks.map(serializeTask);
+  return tasks.map((task) =>
+    serializeTask(task, {
+      includeAdminFields: canReadAllTasks(currentUser),
+    })
+  );
 }
 
 async function getTask(taskId, currentUser) {
@@ -96,7 +111,9 @@ async function getTask(taskId, currentUser) {
     throw new AppError("You can only view assigned tasks", 403);
   }
 
-  return serializeTask(task);
+  return serializeTask(task, {
+    includeAdminFields: canReadAllTasks(currentUser),
+  });
 }
 
 async function createTask(payload, currentUser) {
@@ -168,7 +185,9 @@ async function createTask(payload, currentUser) {
     taskId: task._id,
   });
 
-  return serializeTask(await populateTask(task._id));
+  return serializeTask(await populateTask(task._id), {
+    includeAdminFields: canReadAllTasks(currentUser),
+  });
 }
 
 async function updateTask(taskId, payload, currentUser) {
@@ -232,7 +251,9 @@ async function updateTask(taskId, payload, currentUser) {
 
   await Promise.all(sideEffects);
 
-  return serializeTask(await populateTask(task._id));
+  return serializeTask(await populateTask(task._id), {
+    includeAdminFields: canReadAllTasks(currentUser),
+  });
 }
 
 async function deleteTask(taskId) {
@@ -327,7 +348,9 @@ async function applyTaskStatus(task, nextStatus, currentUser) {
 
   await Promise.all(sideEffects);
 
-  return serializeTask(await populateTask(task._id));
+  return serializeTask(await populateTask(task._id), {
+    includeAdminFields: canReadAllTasks(currentUser),
+  });
 }
 
 async function moveTaskStatus(taskId, nextStatus, currentUser) {

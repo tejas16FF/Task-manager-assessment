@@ -66,14 +66,13 @@ function serializeProject(project) {
   };
 }
 
-function serializeTask(task) {
+function serializeTask(task, options = {}) {
   if (!task) {
     return null;
   }
 
   const data = typeof task.toObject === "function" ? task.toObject() : task;
-
-  return {
+  const serialized = {
     _id: data._id,
     title: data.title,
     description: data.description || "",
@@ -98,6 +97,12 @@ function serializeTask(task) {
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
   };
+
+  if (options.includeAdminFields) {
+    serialized.difficulty = data.difficulty || "Normal";
+  }
+
+  return serialized;
 }
 
 module.exports = {

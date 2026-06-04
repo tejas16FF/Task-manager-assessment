@@ -33,9 +33,12 @@ function formatHours(value) {
 }
 
 function EfficiencyBarChart({ data, title, subtitle }) {
-  const chartData = (data || []).filter(
-    (item) => item.timedTasks > 0 || item.averageHours > 0
-  );
+  const chartData = (data || [])
+    .filter((item) => item.timedTasks > 0 || item.averageHours > 0)
+    .map((item) => ({
+      ...item,
+      adjustedHours: item.difficultyAdjustedHours || item.averageHours || 0,
+    }));
 
   return (
     <ChartPanel title={title} subtitle={subtitle}>
@@ -69,14 +72,18 @@ function EfficiencyBarChart({ data, title, subtitle }) {
                   return [formatHours(value), "Avg completion time"];
                 }
 
+                if (key === "adjustedHours") {
+                  return [formatHours(value), "Difficulty-adjusted time"];
+                }
+
                 return [value, "Efficiency score"];
               }}
             />
             <Legend />
             <Bar
               yAxisId="left"
-              dataKey="averageHours"
-              name="Avg hours"
+              dataKey="adjustedHours"
+              name="Adjusted hours"
               fill="#14b8a6"
               radius={[6, 6, 0, 0]}
             />
@@ -247,7 +254,9 @@ function EmployeeLeaderboard({ data, title, subtitle }) {
                 <strong>{employee.name}</strong>
                 <small>
                   {employee.completed || 0} completed |{" "}
-                  {formatHours(employee.averageHours)} avg
+                  {formatHours(
+                    employee.difficultyAdjustedHours || employee.averageHours
+                  )} adjusted
                 </small>
               </div>
               <span className="leaderboard-score">

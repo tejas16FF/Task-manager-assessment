@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const {
+  TASK_DIFFICULTY,
   TASK_PRIORITY,
   TASK_STATUS,
 } = require("../constants");
@@ -113,6 +114,15 @@ const taskSchema =
         ),
         default:
           TASK_PRIORITY.MEDIUM,
+      },
+
+      difficulty: {
+        type: String,
+        enum: Object.values(
+          TASK_DIFFICULTY
+        ),
+        default:
+          TASK_DIFFICULTY.NORMAL,
       },
 
       status: {

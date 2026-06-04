@@ -18,7 +18,8 @@ const deleteProject = asyncHandler(async (req, res) => {
 
 const getProjectDetails = asyncHandler(async (req, res) => {
   const project = await projectService.getProjectDetails(
-    req.params.id
+    req.params.id,
+    req.user
   );
 
   return res.json(project);

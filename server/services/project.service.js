@@ -2,7 +2,10 @@ const { USER_ROLES } = require("../constants");
 const Project = require("../models/Project");
 const Task = require("../models/Task");
 const AppError = require("../utils/AppError");
-const { serializeProject } = require("../utils/serializers");
+const {
+  serializeProject,
+  serializeTask,
+} = require("../utils/serializers");
 
 function getTaskDurationSeconds(task) {
   if (task.totalTimeTaken && task.totalTimeTaken > 0) {
@@ -18,6 +21,23 @@ function getTaskDurationSeconds(task) {
   );
 
   return duration > 0 ? duration : 0;
+}
+
+function getDifficultyWeight(task) {
+  const weights = {
+    Easy: 0.75,
+    Normal: 1,
+    Hard: 1.5,
+    Expert: 2,
+  };
+
+  return weights[task.difficulty] || weights.Normal;
+}
+
+function getDifficultyAdjustedSeconds(task) {
+  const duration = getTaskDurationSeconds(task);
+
+  return duration > 0 ? duration / getDifficultyWeight(task) : 0;
 }
 
 function round(value, digits = 1) {
@@ -71,8 +91,14 @@ function buildProjectAnalytics(tasks) {
     (sum, task) => sum + getTaskDurationSeconds(task),
     0
   );
+  const adjustedSeconds = timedTasks.reduce(
+    (sum, task) => sum + getDifficultyAdjustedSeconds(task),
+    0
+  );
   const averageSeconds =
     timedTasks.length === 0 ? 0 : totalSeconds / timedTasks.length;
+  const adjustedAverageSeconds =
+    timedTasks.length === 0 ? 0 : adjustedSeconds / timedTasks.length;
 
   tasks.forEach((task) => {
     const employeeName = task.assignedTo?.name || "Unassigned";
@@ -84,6 +110,7 @@ function buildProjectAnalytics(tasks) {
         completed: 0,
         timedTasks: 0,
         totalSeconds: 0,
+        difficultyAdjustedSeconds: 0,
       };
     }
 
@@ -98,6 +125,8 @@ function buildProjectAnalytics(tasks) {
     if (task.completed && durationSeconds > 0) {
       employeeMap[employeeName].timedTasks += 1;
       employeeMap[employeeName].totalSeconds += durationSeconds;
+      employeeMap[employeeName].difficultyAdjustedSeconds +=
+        getDifficultyAdjustedSeconds(task);
     }
   });
 
@@ -107,15 +136,22 @@ function buildProjectAnalytics(tasks) {
         employee.timedTasks === 0
           ? 0
           : employee.totalSeconds / employee.timedTasks;
+      const employeeAdjustedSeconds =
+        employee.timedTasks === 0
+          ? 0
+          : employee.difficultyAdjustedSeconds / employee.timedTasks;
 
       return {
         ...employee,
         averageHours: round(employeeAverageSeconds / 3600),
+        difficultyAdjustedHours: round(employeeAdjustedSeconds / 3600),
         efficiencyScore:
-          employeeAverageSeconds && averageSeconds
+          employeeAdjustedSeconds && adjustedAverageSeconds
             ? Math.min(
                 200,
-                Math.round((averageSeconds / employeeAverageSeconds) * 100)
+                Math.round(
+                  (adjustedAverageSeconds / employeeAdjustedSeconds) * 100
+                )
               )
             : 0,
       };
@@ -124,6 +160,7 @@ function buildProjectAnalytics(tasks) {
 
   return {
     averageCompletionHours: round(averageSeconds / 3600),
+    difficultyAdjustedHours: round(adjustedAverageSeconds / 3600),
     timedCompletedTasks: timedTasks.length,
     statusBreakdown: {
       completed: tasks.filter((task) => task.status === "completed").length,
@@ -263,7 +300,11 @@ async function deleteProject(projectId) {
 
   return { message: "Project deleted successfully" };
 }
-async function getProjectDetails(projectId) {
+function canReadAdminAnalytics(user) {
+  return [USER_ROLES.ADMIN, USER_ROLES.MANAGER].includes(user?.role);
+}
+
+async function getProjectDetails(projectId, currentUser) {
   const project = await Project.findById(projectId)
     .populate({
       path: "members.user",
@@ -289,11 +330,17 @@ async function getProjectDetails(projectId) {
     project.name
   );
 
+  const includeAdminFields = canReadAdminAnalytics(currentUser);
+
   return {
-    analytics: buildProjectAnalytics(tasks),
+    ...(includeAdminFields ? { analytics: buildProjectAnalytics(tasks) } : {}),
     project: serializeProject(project),
     stats,
-    tasks,
+    tasks: tasks.map((task) =>
+      serializeTask(task, {
+        includeAdminFields,
+      })
+    ),
     members: project.members || [],
   };
 }

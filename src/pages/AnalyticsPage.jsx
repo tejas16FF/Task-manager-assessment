@@ -109,6 +109,11 @@ function AnalyticsPage() {
               note="Started to completed"
             />
             <MetricCard
+              label="Adjusted Avg"
+              value={`${analytics.difficultyAdjustedHours || 0}h`}
+              note="Difficulty weighted"
+            />
+            <MetricCard
               label="Fastest Project"
               value={fastestProject?.name || "N/A"}
               note={
@@ -136,7 +141,7 @@ function AnalyticsPage() {
             <EfficiencyBarChart
               data={analytics.projectStats}
               title="Project Speed Index"
-              subtitle="Efficiency score is compared with the team average."
+              subtitle="Efficiency uses difficulty-adjusted completion time."
             />
           </div>
         </>
@@ -149,6 +154,11 @@ function AnalyticsPage() {
               label="Team Avg"
               value={`${analytics.averageCompletionHours || 0}h`}
               note="Started to completed"
+            />
+            <MetricCard
+              label="Adjusted Avg"
+              value={`${analytics.difficultyAdjustedHours || 0}h`}
+              note="Difficulty weighted"
             />
             <MetricCard
               label="Top Performer"
@@ -165,13 +175,13 @@ function AnalyticsPage() {
             <EmployeeLeaderboard
               data={analytics.employeeStats}
               title="Efficiency Leaderboard"
-              subtitle="Ranked by speed against the team baseline."
+              subtitle="Ranked by difficulty-adjusted speed against the team baseline."
             />
 
             <EfficiencyBarChart
               data={analytics.employeeStats}
               title="Employee Delivery Speed"
-              subtitle="Average hours and efficiency by employee."
+              subtitle="Adjusted hours account for task difficulty."
             />
           </div>
 

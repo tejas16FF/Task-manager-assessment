@@ -208,6 +208,12 @@ function EmployeesPage() {
                   value={`${employeeStats?.stats?.efficiencyScore || 0}`}
                 />
                 <StatTile
+                  label="Adjusted Avg"
+                  value={formatHours(
+                    employeeStats?.stats?.difficultyAdjustedHours
+                  )}
+                />
+                <StatTile
                   label="Completion"
                   value={`${employeeStats?.stats?.completionRate || 0}%`}
                 />
@@ -223,7 +229,7 @@ function EmployeesPage() {
                 <EfficiencyBarChart
                   data={projectAnalytics}
                   title="Project Efficiency"
-                  subtitle="Compare this employee's average completion time by project."
+                  subtitle="Efficiency uses difficulty-adjusted completion time."
                 />
               </div>
 
@@ -285,6 +291,9 @@ function EmployeesPage() {
                           <h4>{task.title}</h4>
                           <div className="employee-task-meta">
                             <span className="badge">{task.priority}</span>
+                            <span className="badge">
+                              {task.difficulty || "Normal"}
+                            </span>
                             <span className={`badge-status ${task.status}`}>
                               {task.status?.replace("_", " ")}
                             </span>
