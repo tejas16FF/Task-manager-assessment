@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { api } from "../utils/api";
 import { useTaskStore } from "../store/useTaskStore";
+import {
+  CompletionTrendChart,
+  EfficiencyBarChart,
+} from "../components/EfficiencyCharts";
+
+function formatHours(value) {
+  return `${Number(value || 0).toFixed(1)}h`;
+}
 
 function ProjectDetailsPage() {
   const { id } = useParams();
@@ -12,7 +20,27 @@ function ProjectDetailsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchProjectDetails();
+    let cancelled = false;
+
+    Promise.resolve()
+      .then(() => api.get(`/projects/${id}`))
+      .then((response) => {
+        if (!cancelled) {
+          setProjectData(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   async function fetchProjectDetails() {
@@ -90,7 +118,58 @@ function ProjectDetailsPage() {
           <span>Overdue</span>
           <strong>{projectData.stats.overdueTasks}</strong>
         </div>
+        {isAdmin && (
+          <div className="dashboard-item">
+            <span>Avg Time</span>
+            <strong>
+              {formatHours(projectData.analytics?.averageCompletionHours)}
+            </strong>
+          </div>
+        )}
       </div>
+
+      {isAdmin && (
+        <section className="project-analytics-section">
+          <div className="employee-section-heading">
+            <h3>Project Analytics</h3>
+            <p className="muted">
+              Timing is calculated from when each task started to when it was
+              completed.
+            </p>
+          </div>
+
+          <div className="project-analytics-strip">
+            <div>
+              <span>Timed completions</span>
+              <strong>{projectData.analytics?.timedCompletedTasks || 0}</strong>
+            </div>
+            <div>
+              <span>In progress</span>
+              <strong>
+                {projectData.analytics?.statusBreakdown?.inProgress || 0}
+              </strong>
+            </div>
+            <div>
+              <span>Pending</span>
+              <strong>{projectData.analytics?.statusBreakdown?.pending || 0}</strong>
+            </div>
+          </div>
+
+          <div className="employee-chart-grid">
+            <CompletionTrendChart
+              data={projectData.analytics?.completionTrend}
+              title="Project Delivery Trend"
+              subtitle="Completed task count and average completion time by date."
+            />
+
+            <EfficiencyBarChart
+              data={projectData.analytics?.employeeStats}
+              title="Employee Contribution"
+              subtitle="Average completion time for employees assigned in this project."
+            />
+          </div>
+        </section>
+      )}
 
       <h3 style={{ marginTop: "30px" }}>
         Members

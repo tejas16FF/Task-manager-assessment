@@ -152,4 +152,118 @@ function CompletionTrendChart({ data, title, subtitle }) {
   );
 }
 
-export { CompletionTrendChart, EfficiencyBarChart };
+function ProjectHealthChart({ data, title, subtitle }) {
+  const chartData = (data || []).map((project) => ({
+    name: project.name,
+    completed: project.completed || project.completedTasks || 0,
+    pending:
+      project.pendingTasks ??
+      Math.max((project.total || project.totalTasks || 0) - (project.completed || 0), 0),
+    averageHours: project.averageHours || 0,
+  }));
+
+  return (
+    <ChartPanel title={title} subtitle={subtitle}>
+      {chartData.length === 0 ? (
+        <EmptyChart message="No project analytics yet." />
+      ) : (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis
+              dataKey="name"
+              stroke="var(--muted)"
+              tick={{ fontSize: 12 }}
+              interval={0}
+            />
+            <YAxis
+              yAxisId="tasks"
+              stroke="var(--muted)"
+              tick={{ fontSize: 12 }}
+              allowDecimals={false}
+            />
+            <YAxis
+              yAxisId="hours"
+              orientation="right"
+              stroke="var(--muted)"
+              tick={{ fontSize: 12 }}
+              tickFormatter={formatHours}
+            />
+            <Tooltip
+              formatter={(value, key) => {
+                if (key === "averageHours") {
+                  return [formatHours(value), "Avg completion time"];
+                }
+
+                return [value, key === "completed" ? "Completed" : "Pending"];
+              }}
+            />
+            <Legend />
+            <Bar
+              yAxisId="tasks"
+              dataKey="completed"
+              name="Completed"
+              stackId="tasks"
+              fill="#14b8a6"
+              radius={[0, 0, 0, 0]}
+            />
+            <Bar
+              yAxisId="tasks"
+              dataKey="pending"
+              name="Pending"
+              stackId="tasks"
+              fill="#f59e0b"
+              radius={[6, 6, 0, 0]}
+            />
+            <Line
+              yAxisId="hours"
+              type="monotone"
+              dataKey="averageHours"
+              name="Avg hours"
+              stroke="#6366f1"
+              strokeWidth={3}
+              dot={{ r: 4, fill: "#6366f1" }}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      )}
+    </ChartPanel>
+  );
+}
+
+function EmployeeLeaderboard({ data, title, subtitle }) {
+  const employees = (data || []).slice(0, 8);
+
+  return (
+    <ChartPanel title={title} subtitle={subtitle} className="leaderboard-panel">
+      {employees.length === 0 ? (
+        <EmptyChart />
+      ) : (
+        <div className="analytics-leaderboard">
+          {employees.map((employee, index) => (
+            <div key={employee.id || employee.name} className="leaderboard-row">
+              <span className="leaderboard-rank">{index + 1}</span>
+              <div className="leaderboard-copy">
+                <strong>{employee.name}</strong>
+                <small>
+                  {employee.completed || 0} completed |{" "}
+                  {formatHours(employee.averageHours)} avg
+                </small>
+              </div>
+              <span className="leaderboard-score">
+                {employee.efficiencyScore || 0}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </ChartPanel>
+  );
+}
+
+export {
+  CompletionTrendChart,
+  EfficiencyBarChart,
+  EmployeeLeaderboard,
+  ProjectHealthChart,
+};

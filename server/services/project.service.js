@@ -4,6 +4,137 @@ const Task = require("../models/Task");
 const AppError = require("../utils/AppError");
 const { serializeProject } = require("../utils/serializers");
 
+function getTaskDurationSeconds(task) {
+  if (task.totalTimeTaken && task.totalTimeTaken > 0) {
+    return task.totalTimeTaken;
+  }
+
+  if (!task.startedAt || !task.completedAt) {
+    return 0;
+  }
+
+  const duration = Math.floor(
+    (new Date(task.completedAt) - new Date(task.startedAt)) / 1000
+  );
+
+  return duration > 0 ? duration : 0;
+}
+
+function round(value, digits = 1) {
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
+}
+
+function formatDateKey(value) {
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+function buildCompletionTrend(tasks) {
+  const trendMap = {};
+
+  tasks.forEach((task) => {
+    const durationSeconds = getTaskDurationSeconds(task);
+
+    if (!task.completed || !task.completedAt || durationSeconds <= 0) {
+      return;
+    }
+
+    const dateKey = formatDateKey(task.completedAt);
+
+    if (!trendMap[dateKey]) {
+      trendMap[dateKey] = {
+        date: dateKey,
+        completed: 0,
+        totalSeconds: 0,
+      };
+    }
+
+    trendMap[dateKey].completed += 1;
+    trendMap[dateKey].totalSeconds += durationSeconds;
+  });
+
+  return Object.values(trendMap)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((point) => ({
+      date: point.date,
+      completed: point.completed,
+      averageHours: round(point.totalSeconds / point.completed / 3600),
+    }));
+}
+
+function buildProjectAnalytics(tasks) {
+  const employeeMap = {};
+  const timedTasks = tasks.filter(
+    (task) => task.completed && getTaskDurationSeconds(task) > 0
+  );
+  const totalSeconds = timedTasks.reduce(
+    (sum, task) => sum + getTaskDurationSeconds(task),
+    0
+  );
+  const averageSeconds =
+    timedTasks.length === 0 ? 0 : totalSeconds / timedTasks.length;
+
+  tasks.forEach((task) => {
+    const employeeName = task.assignedTo?.name || "Unassigned";
+
+    if (!employeeMap[employeeName]) {
+      employeeMap[employeeName] = {
+        name: employeeName,
+        total: 0,
+        completed: 0,
+        timedTasks: 0,
+        totalSeconds: 0,
+      };
+    }
+
+    employeeMap[employeeName].total += 1;
+
+    if (task.completed) {
+      employeeMap[employeeName].completed += 1;
+    }
+
+    const durationSeconds = getTaskDurationSeconds(task);
+
+    if (task.completed && durationSeconds > 0) {
+      employeeMap[employeeName].timedTasks += 1;
+      employeeMap[employeeName].totalSeconds += durationSeconds;
+    }
+  });
+
+  const employeeStats = Object.values(employeeMap)
+    .map((employee) => {
+      const employeeAverageSeconds =
+        employee.timedTasks === 0
+          ? 0
+          : employee.totalSeconds / employee.timedTasks;
+
+      return {
+        ...employee,
+        averageHours: round(employeeAverageSeconds / 3600),
+        efficiencyScore:
+          employeeAverageSeconds && averageSeconds
+            ? Math.min(
+                200,
+                Math.round((averageSeconds / employeeAverageSeconds) * 100)
+              )
+            : 0,
+      };
+    })
+    .sort((a, b) => b.completed - a.completed);
+
+  return {
+    averageCompletionHours: round(averageSeconds / 3600),
+    timedCompletedTasks: timedTasks.length,
+    statusBreakdown: {
+      completed: tasks.filter((task) => task.status === "completed").length,
+      inProgress: tasks.filter((task) => task.status === "in_progress").length,
+      pending: tasks.filter((task) => task.status === "pending").length,
+    },
+    completionTrend: buildCompletionTrend(tasks),
+    employeeStats,
+  };
+}
+
 async function recalculateProjectStats(projectId, projectName = "") {
   const query = projectId
     ? { $or: [{ projectRef: projectId }, { project: projectName }] }
@@ -159,6 +290,7 @@ async function getProjectDetails(projectId) {
   );
 
   return {
+    analytics: buildProjectAnalytics(tasks),
     project: serializeProject(project),
     stats,
     tasks,

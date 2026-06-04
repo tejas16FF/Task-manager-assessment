@@ -779,7 +779,7 @@ justify-content: space-between;
   background: linear-gradient(90deg, var(--primary), #818cf8);
   transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
 }
-.project-details-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.project-details-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
 .project-member-item {
   display: flex; align-items: center; gap: 12px;
   padding: 14px; background: var(--surface-2);
@@ -1161,7 +1161,27 @@ justify-content: space-between;
   justify-content: flex-end;
 }
 .analytics-page {
-  padding: 24px;
+  padding: 0;
+}
+.analytics-hero {
+  align-items: flex-end;
+  background:
+    linear-gradient(135deg, rgba(79, 70, 229, 0.10), rgba(20, 184, 166, 0.10)),
+    var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 22px;
+}
+.analytics-hero h2 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0 0 4px;
 }
 .analytics-choice-grid {
   display: grid;
@@ -1200,6 +1220,68 @@ justify-content: space-between;
 .analytics-mode-header h3 {
   font-size: 20px;
 }
+.analytics-tabs {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+}
+.analytics-tabs button {
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 14px;
+}
+.analytics-tabs button.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 6px 16px var(--primary-glow);
+}
+.analytics-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.analytics-metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  min-height: 114px;
+  padding: 18px;
+}
+.analytics-metric-card span {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.analytics-metric-card strong {
+  color: var(--text);
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-top: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.analytics-metric-card small {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 6px;
+}
 .analytics-card-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1210,7 +1292,10 @@ justify-content: space-between;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
-  margin-top: 24px;
+  margin-top: 18px;
+}
+.analytics-grid-featured {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
 }
 .analytics-grid .chart-panel {
   min-height: 380px;
@@ -1222,6 +1307,7 @@ justify-content: space-between;
   box-shadow: var(--shadow-sm);
   padding: 18px;
   min-height: 360px;
+  overflow: hidden;
 }
 .chart-panel-header {
   margin-bottom: 14px;
@@ -1246,6 +1332,59 @@ justify-content: space-between;
   height: 100%;
   justify-content: center;
   text-align: center;
+}
+.analytics-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+.leaderboard-row {
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+}
+.leaderboard-rank {
+  align-items: center;
+  background: var(--primary);
+  border-radius: var(--r-full);
+  color: #fff;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+.leaderboard-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.leaderboard-copy strong,
+.leaderboard-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.leaderboard-copy small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.leaderboard-score {
+  background: var(--success-soft);
+  border-radius: var(--r-full);
+  color: var(--success);
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 5px 10px;
 }
 .employee-analytics-layout {
   display: grid;
@@ -1439,6 +1578,39 @@ justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
 }
+.project-analytics-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+  padding: 18px;
+}
+.project-analytics-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.project-analytics-strip div {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+}
+.project-analytics-strip span {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.project-analytics-strip strong {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 4px;
+}
 .kanban-status-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1506,9 +1678,21 @@ justify-content: space-between;
   }
   .analytics-card-grid,
   .analytics-grid,
+  .analytics-grid-featured,
+  .analytics-summary-grid,
   .employee-analytics-layout,
   .employee-chart-grid {
     grid-template-columns: 1fr;
+  }
+  .analytics-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .analytics-tabs {
+    width: 100%;
+  }
+  .analytics-tabs button {
+    flex: 1;
   }
   .employee-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1532,7 +1716,9 @@ justify-content: space-between;
   .app-shell:not(.sidebar-collapsed) .sidebar-projects-section { display: none; }
   .page-content { padding: 16px; }
   .analytics-card-grid,
-  .employee-kpi-grid {
+  .analytics-summary-grid,
+  .employee-kpi-grid,
+  .project-analytics-strip {
     grid-template-columns: 1fr;
   }
   .employee-task-row,
